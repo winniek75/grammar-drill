@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { QUESTIONS } from "./questions.js";
+import IntroScreen from "./IntroScreen.jsx";
 
 // ── utils ──────────────────────────────────────────────────
 function shuffle(arr) {
@@ -204,7 +205,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 
 // ── component ──────────────────────────────────────────────
 export default function App() {
-  const [screen, setScreen] = useState("home");
+  const [screen, setScreen] = useState("home"); // home | intro | drill | result
   const [level, setLevel] = useState("grade3");
   const [qCount, setQCount] = useState(10);
   const [questions, setQuestions] = useState([]);
@@ -400,10 +401,37 @@ export default function App() {
 
             <button
               className={`start-btn s-${level}`}
+              onClick={() => setScreen("intro")}
+            >
+              📖 導入レッスン → ゲームへ
+            </button>
+            <button
+              style={{ width: "100%", marginTop: 8, padding: "12px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#6b7280", fontFamily: "'Space Mono',monospace", fontSize: "0.78rem", fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" }}
               onClick={() => startGame(level, qCount)}
             >
-              ▶ START GAME
+              スキップしてゲームへ →
             </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // ── INTRO ─────────────────────────────────────────────────
+  if (screen === "intro") {
+    return (
+      <>
+        <style>{CSS}</style>
+        <div className="app">
+          <div className="bg-grid" />
+          <div className="glow g1" />
+          <div className="glow g2" />
+          <div className="glow g3" />
+          <div className="wrap">
+            <IntroScreen
+              level={level}
+              onStart={() => startGame(level, qCount)}
+            />
           </div>
         </div>
       </>
@@ -657,7 +685,14 @@ export default function App() {
                 </button>
               )}
               <button
-                className="a-btn a-home a-full"
+                className="a-btn a-home"
+                onClick={() => setScreen("intro")}
+                style={{ borderColor: "#4b5563", color: "#9ca3af" }}
+              >
+                📖 導入レッスンを復習
+              </button>
+              <button
+                className="a-btn a-home"
                 onClick={() => setScreen("home")}
               >
                 🏠 ホームへ戻る
