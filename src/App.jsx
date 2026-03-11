@@ -411,8 +411,7 @@ export default function App() {
       comboRef.current = nc;
       setCombo(nc); setMaxCombo(mc => Math.max(mc, nc));
       setScore(s => s + pts);
-      // Correct → auto-advance after short delay
-      advRef.current = setTimeout(advance, 1400);
+      // Correct → wait for user to press 次へ (no auto-advance)
     } else {
       comboRef.current = 0; setCombo(0);
       setWrongIds(w => w.includes(curQ.id) ? w : [...w, curQ.id]);
@@ -740,8 +739,8 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
                 {isTO ? "to + 動詞" : "動詞 + ing"}
               </div>
               <div style={{ fontSize:"clamp(15px,4vw,21px)", fontWeight:800, letterSpacing:.5, lineHeight:1.2 }}>{opt.label}</div>
-              {isBoth && opt.hint && (
-                <div style={{ fontSize:10, marginTop:5, color: isTO ? "#f59e0b66" : "#00d4aa66", fontFamily:"Noto Sans JP", opacity: answered ? 1 : .5 }}>{opt.hint}</div>
+              {isBoth && opt.hint && answered && (
+                <div style={{ fontSize:10, marginTop:5, color: isTO ? "#f59e0b66" : "#00d4aa66", fontFamily:"Noto Sans JP" }}>{opt.hint}</div>
               )}
             </button>
           );
@@ -755,23 +754,22 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
             {answered.timeout ? "⏱ TIME'S UP!" : answered.correct ? `✓ CORRECT!${combo >= 3 ? ` — ${combo}x COMBO` : ""}` : "✗ INCORRECT"}
           </div>
           <div style={{ fontSize:12, color:"#777", lineHeight:1.8, fontFamily:"Noto Sans JP", whiteSpace:"pre-line" }}>{q.ex}</div>
-          {/* Show 次へ button only on wrong/timeout — correct auto-advances */}
-          {!answered.correct && (
-            <button
+          <button
               className="btn"
               onClick={onAdvance}
               style={{
                 marginTop:14, width:"100%", padding:"12px",
                 borderRadius:10, border:"none",
-                background:"linear-gradient(135deg,#ef4444,#f97316)",
+                background: answered.correct
+                  ? "linear-gradient(135deg,#00d4aa,#0ea5e9)"
+                  : "linear-gradient(135deg,#ef4444,#f97316)",
                 color:"#fff", fontSize:14, fontWeight:800,
                 letterSpacing:1, cursor:"pointer",
                 display:"flex", alignItems:"center", justifyContent:"center", gap:8,
               }}
             >
-              理解した　→　次の問題へ
+              {answered.correct ? "確認した　→　次の問題へ" : "理解した　→　次の問題へ"}
             </button>
-          )}
         </div>
       )}
     </div>
