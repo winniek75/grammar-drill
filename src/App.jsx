@@ -365,6 +365,28 @@ const CSS = `
   .blink { animation: blink .5s ease infinite alternate; }
   @keyframes blink { from{opacity:1} to{opacity:.4} }
 
+  .combo-milestone-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; pointer-events: none;
+    animation: milestoneAnim 1.5s ease forwards;
+  }
+  .combo-milestone-text {
+    font-family: 'Sora', sans-serif; font-weight: 900;
+    font-size: clamp(36px, 10vw, 64px); color: #fff;
+    text-shadow: 0 0 40px rgba(0,212,170,.6), 0 4px 20px rgba(0,0,0,.5);
+    animation: milestoneTextPop 1.5s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes milestoneAnim { 0%{opacity:0} 10%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
+  @keyframes milestoneTextPop { 0%{transform:scale(0) rotate(-10deg);opacity:0} 30%{transform:scale(1.3) rotate(3deg);opacity:1} 50%{transform:scale(1) rotate(0)} 100%{transform:scale(.8) translateY(-30px);opacity:0} }
+
+  .adaptive-hint {
+    margin: 8px 14px 0; padding: 10px 14px; border-radius: 12px;
+    background: #a78bfa0f; border: 1px solid #a78bfa2e;
+    font-size: 12px; color: #a78bfa; line-height: 1.7;
+    animation: fadeIn .3s ease;
+  }
+
   .choice-btn {
     cursor: pointer; transition: all .13s ease;
     border-radius: 16px; padding: 16px 12px;
@@ -402,6 +424,11 @@ export default function App() {
   const optsRef  = useRef([]);
   const comboRef = useRef(0);
   const timeLRef = useRef(12);
+  const [comboMilestone, setComboMilestone] = useState(null);
+  const [recentResults, setRecentResults] = useState([]); // last 5 results for adaptive hints
+  const [showAdaptiveHint, setShowAdaptiveHint] = useState(false);
+
+  const COMBO_MILESTONES = { 3: "NICE! \u2728", 5: "GREAT! \uD83D\uDD25", 7: "AMAZING! \u26A1", 10: "UNSTOPPABLE! \uD83D\uDC8E" };
 
   const curQ = questions[qIdx];
   const cfg  = activeMode ? MODES[activeMode] : null;
