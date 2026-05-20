@@ -1,6 +1,101 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // ═══════════════════════════════════════════════════════════
+//  AUDIO — Web Audio API sound effects
+// ═══════════════════════════════════════════════════════════
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  return _audioCtx;
+}
+
+/** Correct answer chime: C-E-G triad (sine wave, gain 0.2, 0.3s each, 0.1s spacing) */
+function playCorrectChime() {
+  try {
+    const ctx = getAudioCtx();
+    const notes = [523.25, 659.25, 783.99];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.value = 0.2;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      const start = ctx.currentTime + i * 0.1;
+      osc.start(start);
+      gain.gain.setValueAtTime(0.2, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+      osc.stop(start + 0.3);
+    });
+  } catch (_) { /* audio not available */ }
+}
+
+/** Wrong answer sound: square wave, 150Hz->100Hz sweep, 0.2s */
+function playWrongBuzz() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.2);
+  } catch (_) { /* audio not available */ }
+}
+
+/** TTS: speak an English sentence using Web Speech API */
+function speakEnglish(text) {
+  try {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = "en-US";
+    utt.rate = 0.9;
+    utt.pitch = 1;
+    // Try to pick an English voice
+    const voices = window.speechSynthesis.getVoices();
+    const enVoice = voices.find(v => v.lang.startsWith("en"));
+    if (enVoice) utt.voice = enVoice;
+    window.speechSynthesis.speak(utt);
+  } catch (_) { /* TTS not available */ }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  LOCALSTORAGE — persistence helpers
+// ═══════════════════════════════════════════════════════════
+const LS_RECORDS     = "vfb_records";
+const LS_COMBOS      = "vfb_bestCombos";
+const LS_WRONG_LOG   = "vfb_wrongLog";   // persistent wrong-answer log for review
+
+function lsGet(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch { return fallback; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* quota */ }
+}
+
+/** Append wrong answers from a session to the persistent log */
+function appendWrongLog(wrongIds, questions) {
+  const log = lsGet(LS_WRONG_LOG, []);
+  const ts = Date.now();
+  wrongIds.forEach(id => {
+    const q = questions.find(qq => qq.id === id);
+    if (!q) return;
+    log.push({ id: q.id, verb: q.verb, sentence: q.sentence, blank: q.blank, type: q.type, ts });
+  });
+  // Keep last 200 entries
+  lsSet(LS_WRONG_LOG, log.slice(-200));
+}
+
+// ═══════════════════════════════════════════════════════════
 //  DATA  — 94問
 // ═══════════════════════════════════════════════════════════
 // type: "TO" | "ING" | "BOTH_TO" | "BOTH_ING"
@@ -299,8 +394,8 @@ export default function App() {
   const [qKey,       setQKey]       = useState(0);
   const [timeLeft,   setTimeLeft]   = useState(12);
   const [accuracy,   setAccuracy]   = useState(0);
-  const [records,    setRecords]    = useState({ basic:0, both:0, attack:0 });
-  const [bestCombos, setBestCombos] = useState({ basic:0, both:0, attack:0 });
+  const [records,    setRecords]    = useState(() => lsGet(LS_RECORDS, { basic:0, both:0, attack:0 }));
+  const [bestCombos, setBestCombos] = useState(() => lsGet(LS_COMBOS,  { basic:0, both:0, attack:0 }));
 
   const advRef   = useRef(null);
   const timerRef = useRef(null);
@@ -376,10 +471,12 @@ export default function App() {
     if (!curQ) return;
     clearInterval(timerRef.current);
     setAnswered({ chosenType: "__TIMEOUT__", correct: false, timeout: true });
+    playWrongBuzz();
     setCombo(0); comboRef.current = 0;
     setWrongIds(w => w.includes(curQ.id) ? w : [...w, curQ.id]);
     spawnParticles(false);
-    // Timeout → wait for user to press 次へ (no auto-advance)
+    // TTS: speak the correct sentence even on timeout
+    speakEnglish(curQ.sentence.replace("___", curQ.blank));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curQ, advance]);
 
@@ -404,6 +501,7 @@ export default function App() {
     setAnswered({ chosenType: opt.type, correct: ok, timeout: false });
     spawnParticles(ok);
     if (ok) {
+      playCorrectChime();
       const tb  = hasTimer ? Math.max(0, timeLRef.current - 1) * 8 : 0;
       const nc  = comboRef.current + 1;
       const mul = nc >= 10 ? 3 : nc >= 6 ? 2 : nc >= 3 ? 1.5 : 1;
@@ -411,11 +509,14 @@ export default function App() {
       comboRef.current = nc;
       setCombo(nc); setMaxCombo(mc => Math.max(mc, nc));
       setScore(s => s + pts);
-      // Correct → wait for user to press 次へ (no auto-advance)
+      // TTS: speak the completed sentence
+      speakEnglish(curQ.sentence.replace("___", curQ.blank));
     } else {
+      playWrongBuzz();
       comboRef.current = 0; setCombo(0);
       setWrongIds(w => w.includes(curQ.id) ? w : [...w, curQ.id]);
-      // Wrong → wait for user to press 次へ (no auto-advance)
+      // TTS: speak the correct sentence so student learns
+      speakEnglish(curQ.sentence.replace("___", curQ.blank));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answered, curQ, hasTimer, advance]);
@@ -427,8 +528,20 @@ export default function App() {
     if (screen === "result" && activeMode) {
       const acc = Math.round(((questions.length - wrongIds.length) / questions.length) * 100);
       setAccuracy(acc);
-      setRecords(r  => ({ ...r,  [activeMode]: Math.max(r[activeMode],  score) }));
-      setBestCombos(b => ({ ...b, [activeMode]: Math.max(b[activeMode], maxCombo) }));
+      setRecords(r  => {
+        const next = { ...r,  [activeMode]: Math.max(r[activeMode],  score) };
+        lsSet(LS_RECORDS, next);
+        return next;
+      });
+      setBestCombos(b => {
+        const next = { ...b, [activeMode]: Math.max(b[activeMode], maxCombo) };
+        lsSet(LS_COMBOS, next);
+        return next;
+      });
+      // Persist wrong answers for review
+      if (wrongIds.length > 0) {
+        appendWrongLog(wrongIds, questions);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
@@ -494,6 +607,52 @@ function BackBtn({ onBack }) {
 }
 
 // ─── HOME SCREEN ─────────────────────────────────────────
+function WrongReviewPanel() {
+  const [log, setLog] = useState(() => lsGet(LS_WRONG_LOG, []));
+  if (log.length === 0) return null;
+
+  // Group by verb, count occurrences, sort by most frequent
+  const grouped = {};
+  log.forEach(e => {
+    if (!grouped[e.verb]) grouped[e.verb] = { verb: e.verb, count: 0, items: [] };
+    grouped[e.verb].count++;
+    // Keep only latest entry per question id
+    const existing = grouped[e.verb].items.findIndex(x => x.id === e.id);
+    if (existing >= 0) grouped[e.verb].items[existing] = e;
+    else grouped[e.verb].items.push(e);
+  });
+  const sorted = Object.values(grouped).sort((a, b) => b.count - a.count).slice(0, 8);
+
+  return (
+    <div style={{ width:"100%", maxWidth:440, marginTop:20, padding:"14px 16px", borderRadius:14, background:"#0a0e16", border:"1px solid #141926" }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+        <div style={{ fontSize:11, color:"#ef4444", fontFamily:"Space Mono", letterSpacing:3 }}>WRONG ANSWER LOG</div>
+        <button className="btn" onClick={() => { lsSet(LS_WRONG_LOG, []); setLog([]); }}
+          style={{ fontSize:10, color:"#333", background:"none", border:"1px solid #1e2535", borderRadius:6, padding:"3px 8px", cursor:"pointer" }}>
+          クリア
+        </button>
+      </div>
+      {sorted.map((g, i) => (
+        <div key={i} style={{ marginBottom:8 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
+            <span style={{ fontSize:12, fontWeight:800, color:"#f87171", fontFamily:"Space Mono" }}>{g.verb}</span>
+            <span style={{ fontSize:10, color:"#444", fontFamily:"Space Mono" }}>x{g.count}</span>
+          </div>
+          {g.items.slice(0, 2).map((item, j) => (
+            <div key={j} style={{ fontSize:11, color:"#555", marginLeft:8, lineHeight:1.6, display:"flex", alignItems:"center", gap:4 }}>
+              <span style={{ flex:1 }}>{item.sentence.replace("___", item.blank)}</span>
+              <button className="btn" onClick={() => speakEnglish(item.sentence.replace("___", item.blank))}
+                style={{ flexShrink:0, width:22, height:22, borderRadius:4, background:"none", border:"1px solid #1e2535", color:"#555", fontSize:11, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", padding:0 }}>
+                🔊
+              </button>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function HomeScreen({ onMode, records, bestCombos }) {
   const toN   = ALL_Q.filter(q => q.type === "TO").length;
   const ingN  = ALL_Q.filter(q => q.type === "ING").length;
@@ -531,6 +690,8 @@ function HomeScreen({ onMode, records, bestCombos }) {
           </div>
         ))}
       </div>
+
+      <WrongReviewPanel />
     </div>
   );
 }
@@ -710,7 +871,16 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
             </span>
           ))}
         </div>
-        <div style={{ fontSize:13, color:"#444", fontFamily:"Noto Sans JP" }}>{q.ja}</div>
+        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+          <div style={{ fontSize:13, color:"#444", fontFamily:"Noto Sans JP", flex:1 }}>{q.ja}</div>
+          {answered && (
+            <button className="btn" onClick={() => speakEnglish(q.sentence.replace("___", q.blank))}
+              style={{ flexShrink:0, width:34, height:34, borderRadius:8, background:"#0d111a", border:"1px solid #1e2535", color:"#00d4aa", fontSize:16, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}
+              title="もう一度聞く">
+              🔊
+            </button>
+          )}
+        </div>
         {isBoth && !answered && (
           <div style={{ marginTop:10, padding:"8px 12px", borderRadius:8, background:"#a78bfa0a", border:"1px solid #a78bfa1e" }}>
             <div style={{ fontSize:10, color:"#a78bfa", fontFamily:"Space Mono", letterSpacing:2, marginBottom:2 }}>HINT</div>
