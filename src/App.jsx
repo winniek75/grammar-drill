@@ -515,6 +515,10 @@ export default function App() {
       playWrongBuzz();
       comboRef.current = 0; setCombo(0);
       setWrongIds(w => w.includes(curQ.id) ? w : [...w, curQ.id]);
+      // Report wrong answer to WiseXP
+      if (window.WiseXP) {
+        window.WiseXP.reportWrong({ question: curQ.sentence, correct: correctType + " → " + curQ.blank, playerAnswer: opt.type });
+      }
       // TTS: speak the correct sentence so student learns
       speakEnglish(curQ.sentence.replace("___", curQ.blank));
     }
@@ -522,6 +526,7 @@ export default function App() {
   }, [answered, curQ, hasTimer, advance]);
 
   useEffect(() => () => { clearTimeout(advRef.current); clearInterval(timerRef.current); }, []);
+  useEffect(() => { if (window.WiseXP) window.WiseXP.init('grammar-drill'); }, []);
   useEffect(() => { if (curQ) optsRef.current = buildOpts(curQ); }, [qIdx, questions]); // eslint-disable-line
 
   useEffect(() => {
@@ -541,6 +546,12 @@ export default function App() {
       // Persist wrong answers for review
       if (wrongIds.length > 0) {
         appendWrongLog(wrongIds, questions);
+      }
+      // Report game result to WiseXP
+      if (window.WiseXP) {
+        const correct = questions.length - wrongIds.length;
+        const grade = acc >= 95 ? "S" : acc >= 80 ? "A" : acc >= 65 ? "B" : "C";
+        window.WiseXP.reportGame({ score, correct, total: questions.length, maxCombo, grade });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
