@@ -570,6 +570,16 @@ export default function App() {
         lsSet(LS_COMBOS, next);
         return next;
       });
+      // → MoWISE portal へスコア送信 (WiseGame Bridge)
+      try {
+        const wrongDetail = questions.filter(q => wrongIds.includes(q.id))
+          .map(q => ({ id: q.id, verb: q.verb, type: q.type, sentence: q.sentence })).slice(0, 20);
+        window.WiseGame && window.WiseGame.reportComplete({
+          score: score, maxScore: questions.length * 10, accuracy: acc,
+          metadata: { mode: activeMode, maxCombo: maxCombo, wrongAnswers: wrongDetail }
+        });
+      } catch(e) {}
+
       // Persist wrong answers for review
       if (wrongIds.length > 0) {
         appendWrongLog(wrongIds, questions);
