@@ -1028,7 +1028,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
                 display:"flex", alignItems:"center", justifyContent:"center", gap:8,
               }}
             >
-              {answered.correct ? "確認した　→　次の問題へ" : "理解した　→　次の問題へ"}
+              次の問題へ
             </button>
         </div>
       )}
