@@ -101,216 +101,216 @@ function appendWrongLog(wrongIds, questions) {
 // type: "TO" | "ING" | "BOTH_TO" | "BOTH_ING"
 const ALL_Q = [
   // ── WANT ──
-  { id:1,  verb:"want",   type:"TO",  sentence:"I want ___ a pilot someday.",              blank:"to be",        ja:"将来パイロットになりたい。",                     ex:"want + to動詞 = 〜したい（願望・意志）" },
-  { id:2,  verb:"want",   type:"TO",  sentence:"She wants ___ a new phone.",               blank:"to buy",       ja:"彼女は新しい電話を買いたがっている。",            ex:"want + to + 動詞の原形。未来の願望。" },
-  { id:3,  verb:"want",   type:"TO",  sentence:"Do you want ___ with me?",                 blank:"to come",      ja:"一緒に来たいですか？",                            ex:"want + to + 動詞の原形。" },
+  { id:1,  verb:"want",   type:"TO",  sentence:"I want ___ a pilot someday.",              blank:"to be",        ja:"将来パイロットになりたい。",                     ex:"【want + to + 動詞】= 「〜したい」\nwant はこれからしたいことを表すよ。\nまだやっていない「未来のこと」だから to を使うんだ！\n✅ I want to be ..." },
+  { id:2,  verb:"want",   type:"TO",  sentence:"She wants ___ a new phone.",               blank:"to buy",       ja:"彼女は新しい電話を買いたがっている。",            ex:"【want + to + 動詞】= 「〜したい」\n「買いたい」はまだ買っていない＝未来のこと。\nwant のあとには必ず to がくるよ！\n✅ She wants to buy ..." },
+  { id:3,  verb:"want",   type:"TO",  sentence:"Do you want ___ with me?",                 blank:"to come",      ja:"一緒に来たいですか？",                            ex:"【want + to + 動詞】= 「〜したい」\n「来たい？」はこれからのこと。\nwant のうしろは いつも to + 動詞 だよ！\n✅ Do you want to come ...?" },
   // ── HOPE ──
-  { id:4,  verb:"hope",   type:"TO",  sentence:"I hope ___ you again soon.",               blank:"to see",       ja:"またすぐに会えることを願っています。",            ex:"hope + to動詞 = 〜することを望む（期待・希望）" },
-  { id:5,  verb:"hope",   type:"TO",  sentence:"She hopes ___ the exam.",                  blank:"to pass",      ja:"彼女は試験に合格することを望んでいる。",          ex:"hope + to + 動詞の原形。将来への期待。" },
-  { id:6,  verb:"hope",   type:"TO",  sentence:"We hope ___ there in time.",               blank:"to arrive",    ja:"時間通りに着くことを望んでいます。",              ex:"hope + to arrive。" },
+  { id:4,  verb:"hope",   type:"TO",  sentence:"I hope ___ you again soon.",               blank:"to see",       ja:"またすぐに会えることを願っています。",            ex:"【hope + to + 動詞】= 「〜したいと願う」\nhope は「こうなってほしいな」という気持ち。\nまだ起きていない未来のことだから to を使うよ！\n✅ I hope to see ..." },
+  { id:5,  verb:"hope",   type:"TO",  sentence:"She hopes ___ the exam.",                  blank:"to pass",      ja:"彼女は試験に合格することを望んでいる。",          ex:"【hope + to + 動詞】= 「〜することを願う」\n「受かりたい！」は未来の夢・期待。\nhope のあとは to + 動詞 だよ。\n✅ She hopes to pass ..." },
+  { id:6,  verb:"hope",   type:"TO",  sentence:"We hope ___ there in time.",               blank:"to arrive",    ja:"時間通りに着くことを望んでいます。",              ex:"【hope + to + 動詞】= 「〜できればいいな」\n「間に合いたい」は未来への期待。\nhope はいつも to + 動詞 とセットだよ！\n✅ We hope to arrive ..." },
   // ── DECIDE ──
-  { id:7,  verb:"decide", type:"TO",  sentence:"He decided ___ a new job.",                blank:"to find",      ja:"彼は新しい仕事を見つけることにした。",            ex:"decide + to動詞 = 〜することを決める（決断）" },
-  { id:8,  verb:"decide", type:"TO",  sentence:"They decided ___ abroad.",                 blank:"to study",     ja:"彼らは海外で勉強することに決めた。",              ex:"decide + to + 動詞の原形。決断・選択。" },
-  { id:9,  verb:"decide", type:"TO",  sentence:"I decided ___ home early.",                blank:"to go",        ja:"早めに帰宅することにした。",                      ex:"decide + to go。" },
+  { id:7,  verb:"decide", type:"TO",  sentence:"He decided ___ a new job.",                blank:"to find",      ja:"彼は新しい仕事を見つけることにした。",            ex:"【decide + to + 動詞】= 「〜することに決める」\n「よし、やろう！」と決断するのは未来の行動。\n決めた → これからやる → to！\n✅ He decided to find ..." },
+  { id:8,  verb:"decide", type:"TO",  sentence:"They decided ___ abroad.",                 blank:"to study",     ja:"彼らは海外で勉強することに決めた。",              ex:"【decide + to + 動詞】= 「〜することに決める」\n「留学しよう！」と決めた＝これからのこと。\ndecide のあとは to + 動詞 だよ。\n✅ They decided to study ..." },
+  { id:9,  verb:"decide", type:"TO",  sentence:"I decided ___ home early.",                blank:"to go",        ja:"早めに帰宅することにした。",                      ex:"【decide + to + 動詞】= 「〜することに決める」\n「早く帰ろう」と決めた＝これからの行動。\ndecide は必ず to とセットだよ！\n✅ I decided to go ..." },
   // ── PLAN ──
-  { id:10, verb:"plan",   type:"TO",  sentence:"We plan ___ to Italy next summer.",        blank:"to travel",    ja:"来夏イタリアに旅行する予定です。",                ex:"plan + to動詞 = 〜する予定・計画" },
-  { id:11, verb:"plan",   type:"TO",  sentence:"She plans ___ her own company.",           blank:"to start",     ja:"彼女は自分の会社を始める計画だ。",                ex:"plan + to + 動詞の原形。将来の計画。" },
+  { id:10, verb:"plan",   type:"TO",  sentence:"We plan ___ to Italy next summer.",        blank:"to travel",    ja:"来夏イタリアに旅行する予定です。",                ex:"【plan + to + 動詞】= 「〜する予定」\n計画はこれからやること＝未来！\n未来のことだから to を使うよ。\n✅ We plan to travel ..." },
+  { id:11, verb:"plan",   type:"TO",  sentence:"She plans ___ her own company.",           blank:"to start",     ja:"彼女は自分の会社を始める計画だ。",                ex:"【plan + to + 動詞】= 「〜する計画がある」\n「これからやるぞ！」という計画＝未来。\nplan のあとは to + 動詞 だよ。\n✅ She plans to start ..." },
   // ── NEED ──
-  { id:12, verb:"need",   type:"TO",  sentence:"You need ___ more sleep.",                 blank:"to get",       ja:"もっと睡眠をとる必要があります。",                ex:"need + to動詞 = 〜する必要がある（必要性）" },
-  { id:13, verb:"need",   type:"TO",  sentence:"We need ___ harder.",                      blank:"to work",      ja:"もっと頑張る必要がある。",                        ex:"need + to + 動詞の原形。" },
-  { id:14, verb:"need",   type:"TO",  sentence:"She needs ___ a doctor.",                  blank:"to see",       ja:"彼女は医者に診てもらう必要がある。",              ex:"need + to see。" },
+  { id:12, verb:"need",   type:"TO",  sentence:"You need ___ more sleep.",                 blank:"to get",       ja:"もっと睡眠をとる必要があります。",                ex:"【need + to + 動詞】= 「〜する必要がある」\n「もっと寝なきゃ！」＝これからやるべきこと。\nneed のあとは to + 動詞 だよ。\n✅ You need to get ..." },
+  { id:13, verb:"need",   type:"TO",  sentence:"We need ___ harder.",                      blank:"to work",      ja:"もっと頑張る必要がある。",                        ex:"【need + to + 動詞】= 「〜する必要がある」\n「頑張らなきゃ！」＝これからやること。\nneed は必ず to + 動詞 とセットだよ！\n✅ We need to work ..." },
+  { id:14, verb:"need",   type:"TO",  sentence:"She needs ___ a doctor.",                  blank:"to see",       ja:"彼女は医者に診てもらう必要がある。",              ex:"【need + to + 動詞】= 「〜する必要がある」\n「お医者さんに行かなきゃ」＝未来の行動。\nneed + to はセットで覚えよう！\n✅ She needs to see ..." },
   // ── PROMISE ──
-  { id:15, verb:"promise",type:"TO",  sentence:"He promised ___ on time.",                 blank:"to arrive",    ja:"彼は時間通りに来ると約束した。",                  ex:"promise + to動詞 = 〜することを約束する" },
-  { id:16, verb:"promise",type:"TO",  sentence:"I promise ___ you every day.",             blank:"to call",      ja:"毎日電話することを約束します。",                  ex:"promise + to + 動詞の原形。" },
+  { id:15, verb:"promise",type:"TO",  sentence:"He promised ___ on time.",                 blank:"to arrive",    ja:"彼は時間通りに来ると約束した。",                  ex:"【promise + to + 動詞】= 「〜すると約束する」\n約束するのは「これからすること」だよね。\n未来のことだから to を使うんだ！\n✅ He promised to arrive ..." },
+  { id:16, verb:"promise",type:"TO",  sentence:"I promise ___ you every day.",             blank:"to call",      ja:"毎日電話することを約束します。",                  ex:"【promise + to + 動詞】= 「〜すると約束する」\n「毎日電話するね！」という未来の約束。\npromise + to はセットだよ！\n✅ I promise to call ..." },
   // ── AGREE ──
-  { id:17, verb:"agree",  type:"TO",  sentence:"She agreed ___ us at noon.",               blank:"to meet",      ja:"彼女は正午に会うことに合意した。",                ex:"agree + to動詞 = 〜することに同意する" },
-  { id:18, verb:"agree",  type:"TO",  sentence:"They agreed ___ the project.",             blank:"to join",      ja:"彼らはプロジェクトに参加することに同意した。",    ex:"agree + to + 動詞の原形。" },
+  { id:17, verb:"agree",  type:"TO",  sentence:"She agreed ___ us at noon.",               blank:"to meet",      ja:"彼女は正午に会うことに合意した。",                ex:"【agree + to + 動詞】= 「〜することに賛成する」\n「いいよ！」とOKした＝これからやること。\nagree のあとは to + 動詞 だよ。\n✅ She agreed to meet ..." },
+  { id:18, verb:"agree",  type:"TO",  sentence:"They agreed ___ the project.",             blank:"to join",      ja:"彼らはプロジェクトに参加することに同意した。",    ex:"【agree + to + 動詞】= 「〜することに賛成する」\n「参加しよう！」と決めた＝未来のこと。\nagree + to はセットで覚えよう！\n✅ They agreed to join ..." },
   // ── REFUSE ──
-  { id:19, verb:"refuse", type:"TO",  sentence:"He refused ___ sorry.",                    blank:"to say",       ja:"彼はごめんなさいと言うことを拒んだ。",            ex:"refuse + to動詞 = 〜することを拒否する" },
-  { id:20, verb:"refuse", type:"TO",  sentence:"She refused ___ the offer.",               blank:"to accept",    ja:"彼女はその申し出を受け入れることを断った。",      ex:"refuse + to + 動詞の原形。" },
+  { id:19, verb:"refuse", type:"TO",  sentence:"He refused ___ sorry.",                    blank:"to say",       ja:"彼はごめんなさいと言うことを拒んだ。",            ex:"【refuse + to + 動詞】= 「〜するのを断る」\n「やだ！やらない！」と拒否する＝未来のこと。\nrefuse のあとは to + 動詞 だよ。\n✅ He refused to say ..." },
+  { id:20, verb:"refuse", type:"TO",  sentence:"She refused ___ the offer.",               blank:"to accept",    ja:"彼女はその申し出を受け入れることを断った。",      ex:"【refuse + to + 動詞】= 「〜するのを断る」\n「受け入れない！」と拒否＝未来の行動の拒否。\nrefuse + to はセットだよ！\n✅ She refused to accept ..." },
   // ── OFFER ──
-  { id:21, verb:"offer",  type:"TO",  sentence:"He offered ___ me home.",                  blank:"to drive",     ja:"彼は私を家まで車で送ることを申し出た。",          ex:"offer + to動詞 = 〜することを申し出る" },
-  { id:22, verb:"offer",  type:"TO",  sentence:"She offered ___ with the bags.",           blank:"to help",      ja:"彼女は荷物を手伝うことを申し出た。",              ex:"offer + to + 動詞の原形。" },
+  { id:21, verb:"offer",  type:"TO",  sentence:"He offered ___ me home.",                  blank:"to drive",     ja:"彼は私を家まで車で送ることを申し出た。",          ex:"【offer + to + 動詞】= 「〜しましょうか？と申し出る」\n「送ってあげるよ！」＝これからやること。\noffer のあとは to + 動詞 だよ。\n✅ He offered to drive ..." },
+  { id:22, verb:"offer",  type:"TO",  sentence:"She offered ___ with the bags.",           blank:"to help",      ja:"彼女は荷物を手伝うことを申し出た。",              ex:"【offer + to + 動詞】= 「〜しましょうかと申し出る」\n「手伝うよ！」と言った＝未来の行動。\noffer + to はセットで覚えよう！\n✅ She offered to help ..." },
   // ── CHOOSE ──
-  { id:23, verb:"choose", type:"TO",  sentence:"She chose ___ alone.",                     blank:"to live",      ja:"彼女は1人で暮らすことを選んだ。",                 ex:"choose + to動詞 = 〜することを選ぶ（選択）" },
-  { id:24, verb:"choose", type:"TO",  sentence:"He chose ___ the truth.",                  blank:"to tell",      ja:"彼は真実を話すことを選んだ。",                    ex:"choose + to + 動詞の原形。" },
+  { id:23, verb:"choose", type:"TO",  sentence:"She chose ___ alone.",                     blank:"to live",      ja:"彼女は1人で暮らすことを選んだ。",                 ex:"【choose + to + 動詞】= 「〜することを選ぶ」\n「1人で暮らそう！」と決めた＝未来の行動。\nchoose のあとは to + 動詞 だよ。\n✅ She chose to live ..." },
+  { id:24, verb:"choose", type:"TO",  sentence:"He chose ___ the truth.",                  blank:"to tell",      ja:"彼は真実を話すことを選んだ。",                    ex:"【choose + to + 動詞】= 「〜することを選ぶ」\n「本当のことを言おう！」と選んだ＝未来の行動。\nchoose + to はセットだよ！\n✅ He chose to tell ..." },
   // ── MANAGE ──
-  { id:25, verb:"manage", type:"TO",  sentence:"She managed ___ despite the rain.",        blank:"to run",       ja:"雨にもかかわらずなんとか走ることができた。",      ex:"manage + to動詞 = なんとか〜できる（困難を乗り越えて達成）" },
-  { id:26, verb:"manage", type:"TO",  sentence:"He managed ___ first place.",              blank:"to take",      ja:"彼はなんとか1位をとることができた。",             ex:"manage + to + 動詞の原形。" },
+  { id:25, verb:"manage", type:"TO",  sentence:"She managed ___ despite the rain.",        blank:"to run",       ja:"雨にもかかわらずなんとか走ることができた。",      ex:"【manage + to + 動詞】= 「なんとか〜できた」\n大変だったけどできた！という意味。\n達成した行動＝ to + 動詞 だよ。\n✅ She managed to run ..." },
+  { id:26, verb:"manage", type:"TO",  sentence:"He managed ___ first place.",              blank:"to take",      ja:"彼はなんとか1位をとることができた。",             ex:"【manage + to + 動詞】= 「なんとか〜できた」\nがんばって達成した！ということ。\nmanage + to はセットで覚えよう！\n✅ He managed to take ..." },
   // ── FAIL ──
-  { id:27, verb:"fail",   type:"TO",  sentence:"He failed ___ the test.",                  blank:"to pass",      ja:"彼は試験に合格できなかった。",                    ex:"fail + to動詞 = 〜できなかった（失敗・不能）" },
-  { id:28, verb:"fail",   type:"TO",  sentence:"She failed ___ the deadline.",             blank:"to meet",      ja:"彼女は締め切りに間に合わなかった。",              ex:"fail + to + 動詞の原形。" },
+  { id:27, verb:"fail",   type:"TO",  sentence:"He failed ___ the test.",                  blank:"to pass",      ja:"彼は試験に合格できなかった。",                    ex:"【fail + to + 動詞】= 「〜できなかった」\nやろうとしたけどダメだった... という意味。\nfail のあとは to + 動詞 だよ。\n✅ He failed to pass ..." },
+  { id:28, verb:"fail",   type:"TO",  sentence:"She failed ___ the deadline.",             blank:"to meet",      ja:"彼女は締め切りに間に合わなかった。",              ex:"【fail + to + 動詞】= 「〜できなかった」\n「間に合わなかった...」＝できなかったこと。\nfail + to はセットで覚えよう！\n✅ She failed to meet ..." },
   // ── EXPECT ──
-  { id:29, verb:"expect", type:"TO",  sentence:"I expect ___ you there.",                  blank:"to see",       ja:"そこであなたに会えると思っています。",            ex:"expect + to動詞 = 〜すると予想する・期待する" },
-  { id:30, verb:"expect", type:"TO",  sentence:"She expects ___ the prize.",               blank:"to win",       ja:"彼女は賞をとると期待している。",                  ex:"expect + to + 動詞の原形。" },
+  { id:29, verb:"expect", type:"TO",  sentence:"I expect ___ you there.",                  blank:"to see",       ja:"そこであなたに会えると思っています。",            ex:"【expect + to + 動詞】= 「〜すると思う・期待する」\n「会えるだろうな」＝未来の予想。\nexpect のあとは to + 動詞 だよ。\n✅ I expect to see ..." },
+  { id:30, verb:"expect", type:"TO",  sentence:"She expects ___ the prize.",               blank:"to win",       ja:"彼女は賞をとると期待している。",                  ex:"【expect + to + 動詞】= 「〜すると期待する」\n「勝てると思う！」＝未来への期待。\nexpect + to はセットで覚えよう！\n✅ She expects to win ..." },
   // ── AFFORD ──
-  { id:31, verb:"afford", type:"TO",  sentence:"We can't afford ___ a new car.",           blank:"to buy",       ja:"新しい車を買う余裕がない。",                      ex:"afford + to動詞 = 〜する余裕がある（主にcan't affordで使う）" },
-  { id:32, verb:"afford", type:"TO",  sentence:"I can't afford ___ any mistakes.",         blank:"to make",      ja:"ミスをする余裕はない。",                          ex:"can't afford + to + 動詞の原形。" },
+  { id:31, verb:"afford", type:"TO",  sentence:"We can't afford ___ a new car.",           blank:"to buy",       ja:"新しい車を買う余裕がない。",                      ex:"【afford + to + 動詞】= 「〜する余裕がある」\nよく can't afford（余裕がない）で使うよ。\nafford のあとは to + 動詞！\n✅ We can't afford to buy ..." },
+  { id:32, verb:"afford", type:"TO",  sentence:"I can't afford ___ any mistakes.",         blank:"to make",      ja:"ミスをする余裕はない。",                          ex:"【afford + to + 動詞】= 「〜する余裕がある」\n「ミスできない！」＝余裕がないということ。\nafford + to はセットだよ！\n✅ I can't afford to make ..." },
   // ── APPEAR / SEEM ──
-  { id:33, verb:"appear", type:"TO",  sentence:"She appears ___ very confident.",          blank:"to be",        ja:"彼女はとても自信があるように見える。",            ex:"appear + to動詞 = 〜のように見える・思われる" },
-  { id:34, verb:"seem",   type:"TO",  sentence:"He seems ___ a good person.",              blank:"to be",        ja:"彼は良い人のようだ。",                            ex:"seem + to + 動詞の原形。" },
+  { id:33, verb:"appear", type:"TO",  sentence:"She appears ___ very confident.",          blank:"to be",        ja:"彼女はとても自信があるように見える。",            ex:"【appear + to + 動詞】= 「〜のように見える」\n「自信がありそうだな」と見た目の印象。\nappear のあとは to + 動詞 だよ。\n✅ She appears to be ..." },
+  { id:34, verb:"seem",   type:"TO",  sentence:"He seems ___ a good person.",              blank:"to be",        ja:"彼は良い人のようだ。",                            ex:"【seem + to + 動詞】= 「〜のようだ」\n「良い人っぽいな」という印象を表すよ。\nseem のあとは to + 動詞 だよ。\n✅ He seems to be ..." },
   // ── PREPARE ──
-  { id:35, verb:"prepare",type:"TO",  sentence:"She prepared ___ a speech.",               blank:"to give",      ja:"彼女はスピーチをする準備をした。",                ex:"prepare + to動詞 = 〜する準備をする" },
+  { id:35, verb:"prepare",type:"TO",  sentence:"She prepared ___ a speech.",               blank:"to give",      ja:"彼女はスピーチをする準備をした。",                ex:"【prepare + to + 動詞】= 「〜する準備をする」\n「これからスピーチするぞ！」＝未来の行動。\nprepare のあとは to + 動詞 だよ。\n✅ She prepared to give ..." },
 
   // ── ENJOY ──
-  { id:36, verb:"enjoy",  type:"ING", sentence:"I enjoy ___ in the rain.",                 blank:"walking",      ja:"雨の中を歩くのが好きだ。",                        ex:"enjoy + -ing = 〜することを楽しむ（必ずing！）" },
-  { id:37, verb:"enjoy",  type:"ING", sentence:"She enjoys ___ new recipes.",              blank:"trying",       ja:"彼女は新しいレシピを試すのを楽しんでいる。",      ex:"enjoy + -ing。楽しむ行為 → ing。" },
-  { id:38, verb:"enjoy",  type:"ING", sentence:"He enjoys ___ to old songs.",              blank:"listening",    ja:"彼は古い歌を聴くのを楽しんでいる。",              ex:"enjoy + listening。" },
+  { id:36, verb:"enjoy",  type:"ING", sentence:"I enjoy ___ in the rain.",                 blank:"walking",      ja:"雨の中を歩くのが好きだ。",                        ex:"【enjoy + 動詞ing】= 「〜するのを楽しむ」\n今やっていることを楽しんでいるイメージ！\nenjoy のあとは必ず ing だよ。to はダメ！\n✅ I enjoy walking ..." },
+  { id:37, verb:"enjoy",  type:"ING", sentence:"She enjoys ___ new recipes.",              blank:"trying",       ja:"彼女は新しいレシピを試すのを楽しんでいる。",      ex:"【enjoy + 動詞ing】= 「〜するのを楽しむ」\n料理を試すこと自体が楽しい！＝今の体験。\nenjoy のあとは必ず ing！ to は使えないよ。\n✅ She enjoys trying ..." },
+  { id:38, verb:"enjoy",  type:"ING", sentence:"He enjoys ___ to old songs.",              blank:"listening",    ja:"彼は古い歌を聴くのを楽しんでいる。",              ex:"【enjoy + 動詞ing】= 「〜するのを楽しむ」\n音楽を聴くこと自体を楽しんでいるよ。\nenjoy は絶対に ing とセット！覚えよう！\n✅ He enjoys listening ..." },
   // ── FINISH ──
-  { id:39, verb:"finish", type:"ING", sentence:"Did you finish ___ your essay?",           blank:"writing",      ja:"エッセイを書き終えましたか？",                    ex:"finish + -ing = 〜し終える（完了のイメージ → ing）" },
-  { id:40, verb:"finish", type:"ING", sentence:"He finished ___ dinner and left.",         blank:"eating",       ja:"彼は夕食を食べ終えて去った。",                    ex:"finish + eating。完了 → ing。" },
-  { id:41, verb:"finish", type:"ING", sentence:"Please finish ___ before the meeting.",   blank:"reading",      ja:"会議の前に読み終えてください。",                  ex:"finish + reading。" },
+  { id:39, verb:"finish", type:"ING", sentence:"Did you finish ___ your essay?",           blank:"writing",      ja:"エッセイを書き終えましたか？",                    ex:"【finish + 動詞ing】= 「〜し終える」\n「書き終わった？」＝やっていたことが完了。\nfinish のあとは必ず ing だよ！\n✅ Did you finish writing ...?" },
+  { id:40, verb:"finish", type:"ING", sentence:"He finished ___ dinner and left.",         blank:"eating",       ja:"彼は夕食を食べ終えて去った。",                    ex:"【finish + 動詞ing】= 「〜し終える」\n「食べ終わった」＝やっていた動作の完了。\nfinish のあとは ing！to は使えないよ。\n✅ He finished eating ..." },
+  { id:41, verb:"finish", type:"ING", sentence:"Please finish ___ before the meeting.",   blank:"reading",      ja:"会議の前に読み終えてください。",                  ex:"【finish + 動詞ing】= 「〜し終える」\n「読み終えて！」＝今やっていることを完了して。\nfinish + ing はセットで覚えよう！\n✅ Please finish reading ..." },
   // ── KEEP ──
-  { id:42, verb:"keep",   type:"ING", sentence:"Keep ___ — don't stop now!",               blank:"going",        ja:"続けて — 今やめないで！",                         ex:"keep + -ing = 〜し続ける（継続のイメージ → ing）" },
-  { id:43, verb:"keep",   type:"ING", sentence:"She keeps ___ the same mistake.",          blank:"making",       ja:"彼女は同じミスを繰り返している。",                ex:"keep + making。継続 → ing。" },
-  { id:44, verb:"keep",   type:"ING", sentence:"He kept ___ even when tired.",             blank:"running",      ja:"疲れてもずっと走り続けた。",                      ex:"keep + running。" },
+  { id:42, verb:"keep",   type:"ING", sentence:"Keep ___ — don't stop now!",               blank:"going",        ja:"続けて — 今やめないで！",                         ex:"【keep + 動詞ing】= 「〜し続ける」\n「続けて！」＝今やっていることをずっとやる。\nkeep のあとは必ず ing だよ！\n✅ Keep going ..." },
+  { id:43, verb:"keep",   type:"ING", sentence:"She keeps ___ the same mistake.",          blank:"making",       ja:"彼女は同じミスを繰り返している。",                ex:"【keep + 動詞ing】= 「〜し続ける」\n何度も同じミスをする＝繰り返し続けている。\nkeep のあとは ing！to は使えないよ。\n✅ She keeps making ..." },
+  { id:44, verb:"keep",   type:"ING", sentence:"He kept ___ even when tired.",             blank:"running",      ja:"疲れてもずっと走り続けた。",                      ex:"【keep + 動詞ing】= 「〜し続ける」\n「走り続けた！」＝ずっとやっていた動作。\nkeep + ing はセットで覚えよう！\n✅ He kept running ..." },
   // ── AVOID ──
-  { id:45, verb:"avoid",  type:"ING", sentence:"Try to avoid ___ too much sugar.",         blank:"eating",       ja:"砂糖の食べすぎを避けましょう。",                  ex:"avoid + -ing = 〜するのを避ける" },
-  { id:46, verb:"avoid",  type:"ING", sentence:"He avoids ___ to crowded places.",         blank:"going",        ja:"彼は混んだ場所に行くのを避ける。",                ex:"avoid + going。回避 → ing。" },
-  { id:47, verb:"avoid",  type:"ING", sentence:"She avoided ___ him at the party.",        blank:"meeting",      ja:"彼女はパーティーで彼に会うのを避けた。",          ex:"avoid + meeting。" },
+  { id:45, verb:"avoid",  type:"ING", sentence:"Try to avoid ___ too much sugar.",         blank:"eating",       ja:"砂糖の食べすぎを避けましょう。",                  ex:"【avoid + 動詞ing】= 「〜するのを避ける」\n「食べすぎないようにしよう」＝その行為を避ける。\navoid のあとは必ず ing だよ！\n✅ Try to avoid eating ..." },
+  { id:46, verb:"avoid",  type:"ING", sentence:"He avoids ___ to crowded places.",         blank:"going",        ja:"彼は混んだ場所に行くのを避ける。",                ex:"【avoid + 動詞ing】= 「〜するのを避ける」\n「行かないようにする」＝その行動を避ける。\navoid のあとは ing！ to は使えないよ。\n✅ He avoids going ..." },
+  { id:47, verb:"avoid",  type:"ING", sentence:"She avoided ___ him at the party.",        blank:"meeting",      ja:"彼女はパーティーで彼に会うのを避けた。",          ex:"【avoid + 動詞ing】= 「〜するのを避ける」\n「会わないようにした」＝会うことを避けた。\navoid + ing はセットで覚えよう！\n✅ She avoided meeting ..." },
   // ── MIND ──
-  { id:48, verb:"mind",   type:"ING", sentence:"Do you mind ___ the door?",                blank:"closing",      ja:"ドアを閉めていただけますか？",                    ex:"mind + -ing = 〜するのが嫌か（Do you mind -ing? は丁寧なお願い）" },
-  { id:49, verb:"mind",   type:"ING", sentence:"I don't mind ___ a little longer.",        blank:"waiting",      ja:"もう少し待つのは構いません。",                    ex:"don't mind + waiting。" },
-  { id:50, verb:"mind",   type:"ING", sentence:"Would you mind ___ it again?",             blank:"explaining",   ja:"もう一度説明していただけますか？",                ex:"mind + explaining。" },
+  { id:48, verb:"mind",   type:"ING", sentence:"Do you mind ___ the door?",                blank:"closing",      ja:"ドアを閉めていただけますか？",                    ex:"【mind + 動詞ing】= 「〜するのは嫌ですか？」\nDo you mind ...ing? は「〜してもらえますか？」というていねいなお願い！\nmind のあとは必ず ing だよ。\n✅ Do you mind closing ...?" },
+  { id:49, verb:"mind",   type:"ING", sentence:"I don't mind ___ a little longer.",        blank:"waiting",      ja:"もう少し待つのは構いません。",                    ex:"【mind + 動詞ing】= 「〜するのは嫌ですか？」\ndon't mind = 「気にしないよ、大丈夫！」\nmind のあとは ing！ to は使えないよ。\n✅ I don't mind waiting ..." },
+  { id:50, verb:"mind",   type:"ING", sentence:"Would you mind ___ it again?",             blank:"explaining",   ja:"もう一度説明していただけますか？",                ex:"【mind + 動詞ing】= 「〜するのは嫌ですか？」\nWould you mind ...ing? はとてもていねいなお願い。\nmind + ing はセットで覚えよう！\n✅ Would you mind explaining ...?" },
   // ── MISS ──
-  { id:51, verb:"miss",   type:"ING", sentence:"I miss ___ lunch with you.",               blank:"having",       ja:"あなたとランチをしていたことが懐かしい。",        ex:"miss + -ing = 〜しないことが残念・〜を恋しく思う" },
-  { id:52, verb:"miss",   type:"ING", sentence:"She misses ___ her friends.",              blank:"seeing",       ja:"彼女は友達に会えなくて寂しい。",                  ex:"miss + seeing。恋しい → ing。" },
+  { id:51, verb:"miss",   type:"ING", sentence:"I miss ___ lunch with you.",               blank:"having",       ja:"あなたとランチをしていたことが懐かしい。",        ex:"【miss + 動詞ing】= 「〜していたことが懐かしい」\n前にやっていたことを恋しく思う気持ち。\nmiss のあとは必ず ing だよ！\n✅ I miss having ..." },
+  { id:52, verb:"miss",   type:"ING", sentence:"She misses ___ her friends.",              blank:"seeing",       ja:"彼女は友達に会えなくて寂しい。",                  ex:"【miss + 動詞ing】= 「〜できなくて寂しい」\n「会いたいなぁ...」＝前にしていたことが恋しい。\nmiss + ing はセットで覚えよう！\n✅ She misses seeing ..." },
   // ── CONSIDER ──
-  { id:53, verb:"consider",type:"ING",sentence:"We're considering ___ abroad.",            blank:"living",       ja:"海外に住むことを検討しています。",                ex:"consider + -ing = 〜することを検討する・考慮する" },
-  { id:54, verb:"consider",type:"ING",sentence:"She is considering ___ her job.",          blank:"changing",     ja:"彼女は仕事を変えることを考えている。",            ex:"consider + changing。検討 → ing。" },
+  { id:53, verb:"consider",type:"ING",sentence:"We're considering ___ abroad.",            blank:"living",       ja:"海外に住むことを検討しています。",                ex:"【consider + 動詞ing】= 「〜しようか考えている」\n「海外に住もうかなぁ」と頭の中で考えている。\nconsider のあとは必ず ing だよ！\n✅ We're considering living ..." },
+  { id:54, verb:"consider",type:"ING",sentence:"She is considering ___ her job.",          blank:"changing",     ja:"彼女は仕事を変えることを考えている。",            ex:"【consider + 動詞ing】= 「〜しようか考えている」\n「転職しようかな...」と検討中。\nconsider + ing はセットで覚えよう！\n✅ She is considering changing ..." },
   // ── SUGGEST ──
-  { id:55, verb:"suggest",type:"ING", sentence:"He suggested ___ by train.",               blank:"going",        ja:"彼は電車で行くことを提案した。",                  ex:"suggest + -ing = 〜することを提案する" },
-  { id:56, verb:"suggest",type:"ING", sentence:"She suggested ___ a break.",               blank:"taking",       ja:"彼女は休憩をとることを提案した。",                ex:"suggest + taking。提案 → ing。" },
+  { id:55, verb:"suggest",type:"ING", sentence:"He suggested ___ by train.",               blank:"going",        ja:"彼は電車で行くことを提案した。",                  ex:"【suggest + 動詞ing】= 「〜することを提案する」\n「電車で行こうよ！」と提案している。\nsuggest のあとは必ず ing だよ！\n✅ He suggested going ..." },
+  { id:56, verb:"suggest",type:"ING", sentence:"She suggested ___ a break.",               blank:"taking",       ja:"彼女は休憩をとることを提案した。",                ex:"【suggest + 動詞ing】= 「〜しようと提案する」\n「休もうよ！」というアイデアの提案。\nsuggest + ing はセットで覚えよう！\n✅ She suggested taking ..." },
   // ── PRACTICE ──
-  { id:57, verb:"practice",type:"ING",sentence:"You should practice ___ aloud.",           blank:"reading",      ja:"声に出して読む練習をするべきだ。",                ex:"practice + -ing = 〜する練習をする" },
-  { id:58, verb:"practice",type:"ING",sentence:"He practices ___ kanji every day.",        blank:"writing",      ja:"彼は毎日漢字を書く練習をしている。",              ex:"practice + writing。練習 → ing。" },
+  { id:57, verb:"practice",type:"ING",sentence:"You should practice ___ aloud.",           blank:"reading",      ja:"声に出して読む練習をするべきだ。",                ex:"【practice + 動詞ing】= 「〜する練習をする」\n「音読の練習をしよう！」＝実際にやる練習。\npractice のあとは必ず ing だよ！\n✅ You should practice reading ..." },
+  { id:58, verb:"practice",type:"ING",sentence:"He practices ___ kanji every day.",        blank:"writing",      ja:"彼は毎日漢字を書く練習をしている。",              ex:"【practice + 動詞ing】= 「〜する練習をする」\n「毎日書く練習をする」＝実際にやっている動作。\npractice + ing はセットで覚えよう！\n✅ He practices writing ..." },
   // ── DELAY / PUT OFF ──
-  { id:59, verb:"delay",  type:"ING", sentence:"Don't delay ___ the doctor.",              blank:"seeing",       ja:"医者に行くのを先延ばしにしないで。",              ex:"delay + -ing = 〜することを遅らせる" },
-  { id:60, verb:"put off",type:"ING", sentence:"He put off ___ his homework.",             blank:"doing",        ja:"彼は宿題をやるのを先延ばしにした。",              ex:"put off + -ing = 〜するのを後回しにする" },
+  { id:59, verb:"delay",  type:"ING", sentence:"Don't delay ___ the doctor.",              blank:"seeing",       ja:"医者に行くのを先延ばしにしないで。",              ex:"【delay + 動詞ing】= 「〜するのを遅らせる」\n「後でいいや...」と先のばしにしちゃダメ！\ndelay のあとは必ず ing だよ。\n✅ Don't delay seeing ..." },
+  { id:60, verb:"put off",type:"ING", sentence:"He put off ___ his homework.",             blank:"doing",        ja:"彼は宿題をやるのを先延ばしにした。",              ex:"【put off + 動詞ing】= 「〜するのを後回しにする」\n「あとでやろ〜」と先のばしにした。\nput off のあとは必ず ing だよ！\n✅ He put off doing ..." },
   // ── GIVE UP ──
-  { id:61, verb:"give up",type:"ING", sentence:"Never give up ___ your goal.",             blank:"chasing",      ja:"目標を追いかけることをあきらめないで。",          ex:"give up + -ing = 〜するのをあきらめる" },
-  { id:62, verb:"give up",type:"ING", sentence:"She gave up ___ meat.",                    blank:"eating",       ja:"彼女は肉を食べるのをやめた。",                    ex:"give up + eating。諦め・中断 → ing。" },
+  { id:61, verb:"give up",type:"ING", sentence:"Never give up ___ your goal.",             blank:"chasing",      ja:"目標を追いかけることをあきらめないで。",          ex:"【give up + 動詞ing】= 「〜するのをあきらめる」\n「あきらめないで！」＝やっていることを止めるな。\ngive up のあとは必ず ing だよ！\n✅ Never give up chasing ..." },
+  { id:62, verb:"give up",type:"ING", sentence:"She gave up ___ meat.",                    blank:"eating",       ja:"彼女は肉を食べるのをやめた。",                    ex:"【give up + 動詞ing】= 「〜するのをやめる」\n「肉を食べるのをやめた」＝習慣をやめた。\ngive up + ing はセットで覚えよう！\n✅ She gave up eating ..." },
   // ── IMAGINE ──
-  { id:63, verb:"imagine",type:"ING", sentence:"Can you imagine ___ on the moon?",         blank:"walking",      ja:"月の上を歩くことを想像できますか？",              ex:"imagine + -ing = 〜することを想像する" },
-  { id:64, verb:"imagine",type:"ING", sentence:"I can't imagine ___ without music.",       blank:"living",       ja:"音楽なしで生きることが想像できない。",            ex:"imagine + living。" },
+  { id:63, verb:"imagine",type:"ING", sentence:"Can you imagine ___ on the moon?",         blank:"walking",      ja:"月の上を歩くことを想像できますか？",              ex:"【imagine + 動詞ing】= 「〜することを想像する」\n頭の中でやっている場面を思いうかべるよ。\nimagine のあとは必ず ing だよ！\n✅ Can you imagine walking ...?" },
+  { id:64, verb:"imagine",type:"ING", sentence:"I can't imagine ___ without music.",       blank:"living",       ja:"音楽なしで生きることが想像できない。",            ex:"【imagine + 動詞ing】= 「〜することが想像できない」\n「音楽なしの生活なんてムリ！」という気持ち。\nimagine + ing はセットで覚えよう！\n✅ I can't imagine living ..." },
   // ── DISLIKE ──
-  { id:65, verb:"dislike",type:"ING", sentence:"He dislikes ___ to school early.",         blank:"going",        ja:"彼は早く学校に行くのが嫌いだ。",                  ex:"dislike + -ing = 〜するのが嫌い" },
+  { id:65, verb:"dislike",type:"ING", sentence:"He dislikes ___ to school early.",         blank:"going",        ja:"彼は早く学校に行くのが嫌いだ。",                  ex:"【dislike + 動詞ing】= 「〜するのが嫌い」\n「早起きイヤだ〜！」＝その行動が嫌い。\ndislike のあとは必ず ing だよ！\n✅ He dislikes going ..." },
   // ── LOOK FORWARD TO ──
-  { id:66, verb:"look forward to",type:"ING", sentence:"I look forward to ___ you soon.", blank:"seeing",       ja:"近いうちにあなたに会えるのを楽しみにしています。", ex:"look forward to + -ing\nto は前置詞なのでingが続く！（to不定詞ではない）" },
-  { id:67, verb:"look forward to",type:"ING", sentence:"She looks forward to ___ her family.", blank:"visiting", ja:"彼女は家族に会いに行くのを楽しみにしている。",   ex:"look forward to + visiting。to＝前置詞 → ing！" },
+  { id:66, verb:"look forward to",type:"ING", sentence:"I look forward to ___ you soon.", blank:"seeing",       ja:"近いうちにあなたに会えるのを楽しみにしています。", ex:"【look forward to + 動詞ing】= 「〜するのを楽しみにしている」\nここの to は「〜へ向かって」という前置詞！\nto不定詞の to じゃないから、うしろは ing になるよ。\n✅ I look forward to seeing ..." },
+  { id:67, verb:"look forward to",type:"ING", sentence:"She looks forward to ___ her family.", blank:"visiting", ja:"彼女は家族に会いに行くのを楽しみにしている。",   ex:"【look forward to + 動詞ing】= 「〜するのが楽しみ」\nこの to は前置詞だから、うしろは ing！\n「to + 動詞の原形」の to とはちがうよ。ひっかけ注意！\n✅ She looks forward to visiting ..." },
   // ── SPEND TIME -ING ──
-  { id:68, verb:"spend ... -ing",type:"ING", sentence:"He spends hours ___ video games.",  blank:"playing",      ja:"彼は何時間もゲームをして過ごす。",                ex:"spend + 時間 + -ing = 〜して時間を過ごす" },
-  { id:69, verb:"spend ... -ing",type:"ING", sentence:"She spent all day ___ her room.",   blank:"cleaning",     ja:"彼女は1日中部屋の掃除をして過ごした。",          ex:"spend all day + cleaning。時間 + ing。" },
+  { id:68, verb:"spend ... -ing",type:"ING", sentence:"He spends hours ___ video games.",  blank:"playing",      ja:"彼は何時間もゲームをして過ごす。",                ex:"【spend + 時間 + 動詞ing】= 「〜して時間を過ごす」\n「何時間もゲームしてる」＝時間を使ってやっていること。\nspend + 時間のあとは ing だよ！\n✅ He spends hours playing ..." },
+  { id:69, verb:"spend ... -ing",type:"ING", sentence:"She spent all day ___ her room.",   blank:"cleaning",     ja:"彼女は1日中部屋の掃除をして過ごした。",          ex:"【spend + 時間 + 動詞ing】= 「〜して時間を過ごす」\n「1日中おそうじしてた」＝その時間ずっとやっていた。\nspend + 時間 + ing はセットだよ！\n✅ She spent all day cleaning ..." },
 
   // ═══ BOTH: REMEMBER ═══
   { id:70, verb:"remember", type:"BOTH_ING", bothHint:"過去に会ったことを覚えている", bothLabel:"過去の記憶",
     sentence:"I remember ___ her for the first time.", blank:"meeting",
     ja:"初めて彼女に会ったことを覚えている。",
-    ex:"remember + -ing = 過去にしたことを覚えている\n（すでに起きた出来事の記憶）" },
+    ex:"【remember + 動詞ing】= 「〜したことを覚えている」\n「初めて会った」＝もう終わった過去のこと！\n過去の思い出 → ing を使うよ。\nもし to を使うと「これから会うのを忘れないで」という意味になっちゃう！\n✅ I remember meeting ..." },
   { id:71, verb:"remember", type:"BOTH_TO",  bothHint:"これから窓を閉めること＝やるべきタスク", bothLabel:"これからやること",
     sentence:"Please remember ___ the windows.", blank:"to close",
     ja:"忘れずに窓を閉めてください。",
-    ex:"remember + to動詞 = これからすることを忘れないようにする\n（未来の行動を覚えておく）" },
+    ex:"【remember + to + 動詞】= 「忘れずに〜する」\n「窓を閉めてね！」＝これからやるべきこと！\n未来のやるべきこと → to を使うよ。\nもし ing を使うと「窓を閉めたことを覚えている」になっちゃう！\n✅ Please remember to close ..." },
   { id:72, verb:"remember", type:"BOTH_ING", bothHint:"以前ここに来た経験の記憶", bothLabel:"過去の記憶",
     sentence:"Do you remember ___ to this place before?", blank:"coming",
     ja:"以前ここに来たことを覚えていますか？",
-    ex:"remember + coming = 過去の経験の記憶。" },
+    ex:"【remember + 動詞ing】= 「〜したことを覚えている」\n「前に来たこと覚えてる？」＝過去の体験。\n前にやったことの記憶 → ing！\n✅ Do you remember coming ...?" },
   { id:73, verb:"remember", type:"BOTH_TO",  bothHint:"明日持ってくべき行動＝未来のタスク", bothLabel:"これからやること",
     sentence:"Remember ___ your lunch box tomorrow.", blank:"to bring",
     ja:"明日お弁当箱を忘れずに持ってきてください。",
-    ex:"remember + to bring = 未来の行動を忘れないように。" },
+    ex:"【remember + to + 動詞】= 「忘れずに〜する」\n「お弁当持ってきてね！」＝明日やること。\nこれからやるべきこと → to！\n✅ Remember to bring ..." },
   { id:74, verb:"remember", type:"BOTH_ING", bothHint:"子供の頃に見た思い出", bothLabel:"過去の記憶",
     sentence:"I remember ___ that movie as a child.", blank:"watching",
     ja:"子供の頃にその映画を見たことを覚えている。",
-    ex:"remember + watching = 過去に見た記憶がある。" },
+    ex:"【remember + 動詞ing】= 「〜したことを覚えている」\n「子供の頃に見た」＝昔の思い出！\n過去の体験を覚えている → ing だよ。\n✅ I remember watching ..." },
   { id:75, verb:"remember", type:"BOTH_TO",  bothHint:"電気を消すこと＝やるべき行動", bothLabel:"これからやること",
     sentence:"Did you remember ___ off the lights?", blank:"to turn",
     ja:"電気を消したか確認しましたか？",
-    ex:"remember + to turn = やるべきことを覚えていたか。" },
+    ex:"【remember + to + 動詞】= 「忘れずに〜する」\n「ちゃんと電気消した？」＝やるべきだったこと。\nやるべきタスクを忘れなかったか → to！\n✅ Did you remember to turn ...?" },
 
   // ═══ BOTH: FORGET ═══
   { id:76, verb:"forget", type:"BOTH_ING", bothHint:"パリで暮らした過去の体験", bothLabel:"過去の出来事",
     sentence:"I'll never forget ___ in Paris.", blank:"living",
     ja:"パリで暮らしたことは決して忘れない。",
-    ex:"forget + -ing = 過去にしたことを忘れる\n（もう経験済みのことへの忘却）" },
+    ex:"【forget + 動詞ing】= 「〜したことを忘れる」\n「パリで暮らした思い出」＝もう終わった過去のこと！\n過去の体験を忘れない → ing を使うよ。\n✅ I'll never forget living ..." },
   { id:77, verb:"forget", type:"BOTH_TO",  bothHint:"持ってくるべき行動を忘れないよう注意", bothLabel:"これからやること",
     sentence:"Don't forget ___ your passport!", blank:"to bring",
     ja:"パスポートを忘れずに持ってきて！",
-    ex:"forget + to動詞 = これからすべきことを忘れる\n（未来の行動を忘れてしまう）" },
+    ex:"【forget + to + 動詞】= 「〜するのを忘れる」\n「パスポート持ってきてね！」＝これからやるべきこと。\nやるべきことを忘れるな → to を使うよ。\n✅ Don't forget to bring ..." },
   { id:78, verb:"forget", type:"BOTH_ING", bothHint:"生で聞いたという過去の体験", bothLabel:"過去の出来事",
     sentence:"She'll never forget ___ that song live.", blank:"hearing",
     ja:"あの曲を生で聞いたことを彼女は決して忘れない。",
-    ex:"forget + hearing = 過去に聞いた体験を忘れる。" },
+    ex:"【forget + 動詞ing】= 「〜したことを忘れる」\n「生で聴いた」＝もう終わった素敵な体験！\n過去の思い出 → ing だよ。\n✅ She'll never forget hearing ..." },
   { id:79, verb:"forget", type:"BOTH_TO",  bothHint:"誕生日を祝うという行動を忘れた", bothLabel:"これからやること",
     sentence:"He forgot ___ her birthday.", blank:"to celebrate",
     ja:"彼は彼女の誕生日を祝うのを忘れた。",
-    ex:"forget + to celebrate = すべきことをするのを忘れた。" },
+    ex:"【forget + to + 動詞】= 「〜するのを忘れた」\n「お祝いしなきゃ！」と思っていたのに忘れちゃった。\nやるべきだったこと → to！\n✅ He forgot to celebrate ..." },
   { id:80, verb:"forget", type:"BOTH_ING", bothHint:"先週手紙を書いたという過去の行動", bothLabel:"過去の出来事",
     sentence:"I forgot ___ to him last week.", blank:"writing",
     ja:"先週彼に手紙を書いたのをすっかり忘れていた。",
-    ex:"forget + writing = 過去にしたことを（一時的に）忘れていた。" },
+    ex:"【forget + 動詞ing】= 「〜したことを忘れていた」\n「あ、先週手紙書いたんだった！」＝過去にやったこと。\n過去の行動の記憶 → ing だよ。\n✅ I forgot writing ..." },
 
   // ═══ BOTH: STOP ═══
   { id:81, verb:"stop", type:"BOTH_ING", bothHint:"煙草を吸う習慣を終わらせた", bothLabel:"動作を中止・やめる",
     sentence:"She stopped ___ because of her health.", blank:"smoking",
     ja:"健康のために煙草を吸うのをやめた。",
-    ex:"stop + -ing = 〜するのをやめる\n（やっていた動作を中断・終了）" },
+    ex:"【stop + 動詞ing】= 「〜するのをやめる」\n「タバコを吸うのをやめた」＝やっていたことを中止！\nstop + ing → その動作をストップ！\nもし to を使うと「タバコを吸うために止まった」になっちゃう。\n✅ She stopped smoking ..." },
   { id:82, verb:"stop", type:"BOTH_TO",  bothHint:"パン屋に寄るという目的のために立ち止まった", bothLabel:"〜するために立ち止まる",
     sentence:"He stopped ___ his favorite bakery.", blank:"to visit",
     ja:"彼はお気に入りのパン屋を訪れるために立ち止まった。",
-    ex:"stop + to動詞 = 〜するために（別の動作を）止まる\n（目的・理由を表すto不定詞）" },
+    ex:"【stop + to + 動詞】= 「〜するために止まる」\n「パン屋に行くために立ち止まった」＝目的があって止まった！\nstop + to → 目的のために一時停止。\nもし ing を使うと「訪れるのをやめた」になっちゃう。\n✅ He stopped to visit ..." },
   { id:83, verb:"stop", type:"BOTH_ING", bothHint:"話すという行為をやめてほしいお願い", bothLabel:"動作を中止・やめる",
     sentence:"Please stop ___ — I'm trying to sleep.", blank:"talking",
     ja:"静かにして — 寝ようとしているんだから。",
-    ex:"stop + talking = 話すのをやめる。" },
+    ex:"【stop + 動詞ing】= 「〜するのをやめて」\n「しゃべるのをやめて！」＝今やっている動作をストップ。\nやめてほしい動作 → ing だよ。\n✅ Please stop talking ..." },
   { id:84, verb:"stop", type:"BOTH_TO",  bothHint:"カフェで休憩することが目的で立ち寄った", bothLabel:"〜するために立ち止まる",
     sentence:"We stopped ___ at a café on the way.", blank:"to rest",
     ja:"途中でカフェに休憩のために立ち寄った。",
-    ex:"stop + to rest = 休むために（移動を）止まった。" },
+    ex:"【stop + to + 動詞】= 「〜するために止まる」\n「休むためにカフェに寄った」＝目的があって止まった。\n「〜するために」→ to だよ。\n✅ We stopped to rest ..." },
   { id:85, verb:"stop", type:"BOTH_ING", bothHint:"泣くという行為が終わった", bothLabel:"動作を中止・やめる",
     sentence:"The baby finally stopped ___ at midnight.", blank:"crying",
     ja:"赤ちゃんはやっと夜中に泣くのをやめた。",
-    ex:"stop + crying = 泣くのをやめる。" },
+    ex:"【stop + 動詞ing】= 「〜するのをやめる」\n「泣くのをやめた」＝やっていた動作が終わった！\nやめた動作 → ing だよ。\n✅ The baby stopped crying ..." },
 
   // ═══ BOTH: TRY ═══
   { id:86, verb:"try", type:"BOTH_ING", bothHint:"塩を少なめにした場合の結果を試してみる", bothLabel:"試しに〜してみる（実験）",
     sentence:"Try ___ less salt in the recipe.", blank:"using",
     ja:"レシピで塩を少なめに使ってみてください。",
-    ex:"try + -ing = 試しに〜してみる\n（実験・試み。実際にやってみるイメージ）" },
+    ex:"【try + 動詞ing】= 「試しに〜してみる」\n「塩を減らしてみたら？」＝ちょっとやってみる実験。\nかるく試す → ing を使うよ。\nもし to を使うと「塩を減らそうとがんばる」になるよ。\n✅ Try using ..." },
   { id:87, verb:"try", type:"BOTH_TO",  bothHint:"鍵がかかっていて開けられなかった＝努力したが失敗", bothLabel:"〜しようと努力する",
     sentence:"I tried ___ the door but it was locked.", blank:"to open",
     ja:"ドアを開けようとしたが、鍵がかかっていた。",
-    ex:"try + to動詞 = 〜しようと努力する\n（成功するかわからない努力・挑戦）" },
+    ex:"【try + to + 動詞】= 「〜しようとがんばる」\n「開けようとした（けどダメだった）」＝努力・挑戦！\nがんばってやろうとする → to を使うよ。\n✅ I tried to open ..." },
   { id:88, verb:"try", type:"BOTH_ING", bothHint:"抹茶アイスという新しいものを経験として試す", bothLabel:"試しに〜してみる（実験）",
     sentence:"Have you tried ___ matcha ice cream?", blank:"eating",
     ja:"抹茶アイスクリームを食べてみたことはありますか？",
-    ex:"try + eating = 試しに食べてみる。体験のtry + ing。" },
+    ex:"【try + 動詞ing】= 「試しに〜してみる」\n「食べてみたことある？」＝体験としてやってみる。\n新しいことを試す → ing だよ。\n✅ Have you tried eating ...?" },
   { id:89, verb:"try", type:"BOTH_TO",  bothHint:"誰に対しても親切でいようと日々努力している", bothLabel:"〜しようと努力する",
     sentence:"She tries ___ kind to everyone.", blank:"to be",
     ja:"彼女は誰に対しても親切にしようとしている。",
-    ex:"try + to be = 〜であろうと努力する。継続的な努力。" },
+    ex:"【try + to + 動詞】= 「〜しようとがんばる」\n「親切にしよう！」と毎日がんばっている＝努力。\n一生懸命やろうとする → to だよ。\n✅ She tries to be ..." },
   { id:90, verb:"try", type:"BOTH_ING", bothHint:"アプリを一度使って試してみるよう勧めている", bothLabel:"試しに〜してみる（実験）",
     sentence:"Try ___ the app — it's really useful.", blank:"using",
     ja:"そのアプリを使ってみて — 本当に便利だよ。",
-    ex:"try + using = 試しに使ってみる。" },
+    ex:"【try + 動詞ing】= 「試しに〜してみて」\n「使ってみなよ！」＝かるく試してみるだけ。\n体験としてやってみる → ing だよ。\n✅ Try using ..." },
 
   // ═══ BOTH: REGRET ═══
   { id:91, verb:"regret", type:"BOTH_ING", bothHint:"過去にゲームに時間を使いすぎたことへの後悔", bothLabel:"過去の行動を後悔",
     sentence:"I regret ___ so much time on games.", blank:"spending",
     ja:"ゲームにこんなに時間を使ったことを後悔している。",
-    ex:"regret + -ing = 過去にしたことを後悔する\n（もうやってしまったことへの反省）" },
+    ex:"【regret + 動詞ing】= 「〜したことを後悔する」\n「ゲームしすぎた...」＝もう終わった過去への反省。\n過去にやったことを後悔 → ing だよ。\n✅ I regret spending ..." },
   { id:92, verb:"regret", type:"BOTH_TO",  bothHint:"公式な場でイベント中止のお知らせをしている", bothLabel:"残念ながら〜をお知らせする",
     sentence:"We regret ___ that the event is canceled.", blank:"to inform",
     ja:"残念ながらイベントが中止になったことをお知らせします。",
-    ex:"regret + to動詞 = 残念ながら〜する\n（フォーマルな場面で使う表現）" },
+    ex:"【regret + to + 動詞】= 「残念ながら〜します」\nビジネスや公式な場面でていねいに伝える表現。\n「これからお知らせする」→ to を使うよ。\n✅ We regret to inform ..." },
   { id:93, verb:"regret", type:"BOTH_ING", bothHint:"友達を失ったという過去の結果への後悔", bothLabel:"過去の行動を後悔",
     sentence:"She regrets ___ her old friends.", blank:"losing",
     ja:"彼女は昔の友達を失ったことを後悔している。",
-    ex:"regret + losing = 過去の行動・結果を後悔。" },
+    ex:"【regret + 動詞ing】= 「〜したことを後悔する」\n「友達を失ってしまった...」＝過去の出来事への後悔。\n過去にしたことを悔やむ → ing だよ。\n✅ She regrets losing ..." },
   { id:94, verb:"regret", type:"BOTH_TO",  bothHint:"出席できないという残念なことをフォーマルに伝える", bothLabel:"残念ながら〜をお知らせする",
     sentence:"I regret ___ that I cannot attend.", blank:"to say",
     ja:"残念ながら出席できないことをお伝えします。",
-    ex:"regret + to say = フォーマルに残念な情報を伝える。" },
+    ex:"【regret + to + 動詞】= 「残念ながら〜します」\n「申し上げにくいのですが...」というていねいな表現。\nこれから伝える → to だよ。\n✅ I regret to say ..." },
 ];
 
 function shuffle(arr) {
@@ -554,7 +554,8 @@ export default function App() {
 
   useEffect(() => () => { clearTimeout(advRef.current); clearInterval(timerRef.current); }, []);
   useEffect(() => { if (window.WiseXP) window.WiseXP.init('grammar-drill'); }, []);
-  useEffect(() => { if (curQ) optsRef.current = buildOpts(curQ); }, [qIdx, questions]); // eslint-disable-line
+  // Options are already set in startGame() and advance() — do NOT rebuild here
+  // as buildOpts randomizes button positions, causing left/right swap after render.
 
   useEffect(() => {
     if (screen === "result" && activeMode) {
@@ -594,7 +595,11 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
 
-  const opts = optsRef.current.length === 2 ? optsRef.current : (curQ ? buildOpts(curQ) : []);
+  // If optsRef is somehow empty, rebuild and cache (avoid re-randomizing on each render)
+  if (optsRef.current.length !== 2 && curQ) {
+    optsRef.current = buildOpts(curQ);
+  }
+  const opts = optsRef.current.length === 2 ? optsRef.current : [];
 
   return (
     <div style={{ minHeight:"100vh", background:"#060810", fontFamily:"'Sora','Noto Sans JP',sans-serif", position:"relative", overflowX:"hidden" }}>
@@ -971,7 +976,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
           <div style={{ fontSize:12, fontWeight:800, color: answered.correct ? "#00d4aa" : answered.timeout ? "#f59e0b" : "#ef4444", marginBottom:5, fontFamily:"Space Mono" }}>
             {answered.timeout ? "⏱ TIME'S UP!" : answered.correct ? `✓ CORRECT!${combo >= 3 ? ` — ${combo}x COMBO` : ""}` : "✗ INCORRECT"}
           </div>
-          <div style={{ fontSize:12, color:"#777", lineHeight:1.8, fontFamily:"Noto Sans JP", whiteSpace:"pre-line" }}>{q.ex}</div>
+          <div style={{ fontSize:13, color:"#999", lineHeight:1.9, fontFamily:"Noto Sans JP", whiteSpace:"pre-line" }}>{q.ex}</div>
           <button
               className="btn"
               onClick={onAdvance}
