@@ -434,22 +434,59 @@ export default function App() {
   const cfg  = activeMode ? MODES[activeMode] : null;
   const hasTimer = !!cfg?.time;
 
+  // ing→原形の逆変換マップ（不規則なものを登録）
+  const ING_TO_BASE = {
+    living:"live", coming:"come", making:"make", writing:"write", closing:"close",
+    having:"have", changing:"change", taking:"take", chasing:"chase", using:"use",
+    walking:"walk", trying:"try", listening:"listen", eating:"eat", reading:"read",
+    going:"go", running:"run", meeting:"meet", waiting:"wait", explaining:"explain",
+    seeing:"see", visiting:"visit", playing:"play", cleaning:"clean", smoking:"smoke",
+    talking:"talk", crying:"cry", spending:"spend", losing:"lose", doing:"do",
+    hearing:"hear", watching:"watch",
+  };
+  function ingToBase(ingForm) {
+    // Check explicit map first
+    const mapped = ING_TO_BASE[ingForm];
+    if (mapped) return mapped.includes("→") ? mapped.split("→")[1] : mapped;
+    // Heuristic: strip -ing and guess base form
+    if (!ingForm.endsWith("ing")) return ingForm;
+    const stem = ingForm.slice(0, -3);
+    // doubled consonant: running→run, swimming→swim
+    if (stem.length >= 3 && stem.slice(-1) === stem.slice(-2, -1) && /[bcdfgmnprst]/.test(stem.slice(-1))) {
+      return stem.slice(0, -1);
+    }
+    // stem + e: living→live (but not going→goe)
+    const withE = stem + "e";
+    // Simple check: if stem ends in consonant, try adding e
+    if (/[^aeiou]$/.test(stem) && !/^(go|do|see)$/.test(stem)) {
+      return withE;
+    }
+    return stem;
+  }
+
   function buildOpts(q) {
     if (!q) return [];
     const blank   = q.blank;
     const isTO    = blank.startsWith("to ");
-    const rawVerb = isTO ? blank.slice(3) : blank;
-    let ing;
-    if (rawVerb.endsWith("ing")) {
-      ing = rawVerb;
-    } else if (rawVerb.endsWith("e") && !rawVerb.endsWith("ee") && !rawVerb.endsWith("oe")) {
-      ing = rawVerb.slice(0, -1) + "ing";
-    } else if (/[^aeiou][aeiou][bdgmnprst]$/.test(rawVerb)) {
-      ing = rawVerb + rawVerb.slice(-1) + "ing";
+    // Get base verb form regardless of blank format
+    let baseVerb, ing;
+    if (isTO) {
+      baseVerb = blank.slice(3); // "to run" → "run"
     } else {
-      ing = rawVerb + "ing";
+      // blank is in -ing form, convert back to base
+      baseVerb = ingToBase(blank);
     }
-    const toForm = isTO ? blank : "to " + rawVerb;
+    // Build -ing form from base verb
+    if (blank.endsWith("ing") && !isTO) {
+      ing = blank; // Already in -ing form, use as-is
+    } else if (baseVerb.endsWith("e") && !baseVerb.endsWith("ee") && !baseVerb.endsWith("oe")) {
+      ing = baseVerb.slice(0, -1) + "ing";
+    } else if (/[^aeiou][aeiou][bdgmnprst]$/.test(baseVerb)) {
+      ing = baseVerb + baseVerb.slice(-1) + "ing";
+    } else {
+      ing = baseVerb + "ing";
+    }
+    const toForm = "to " + baseVerb;
     const isBoth = q.type.startsWith("BOTH");
     const correctType = q.type === "BOTH_TO" ? "TO" : q.type === "BOTH_ING" ? "ING" : q.type;
     const toOpt  = { label: toForm, type:"TO",  hint: isBoth ? (q.type === "BOTH_TO"  ? q.bothLabel : "別の意味") : null };
