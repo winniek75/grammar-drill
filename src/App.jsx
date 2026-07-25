@@ -611,7 +611,10 @@ export default function App() {
       // → MoWISE portal へスコア送信 (WiseGame Bridge)
       try {
         const wrongDetail = questions.filter(q => wrongIds.includes(q.id))
-          .map(q => ({ id: q.id, verb: q.verb, type: q.type, sentence: q.sentence })).slice(0, 20);
+          .map(q => {
+            const ct = q.type === "BOTH_TO" ? "TO" : q.type === "BOTH_ING" ? "ING" : q.type;
+            return { q: q.sentence, correct: ct + " → " + q.blank, chosen: "", tag: ct === "TO" ? "to_infinitive" : "gerund" };
+          }).slice(0, 20);
         window.WiseGame && window.WiseGame.reportComplete({
           score: score, maxScore: questions.length * 10, accuracy: acc,
           metadata: { mode: activeMode, maxCombo: maxCombo, wrongAnswers: wrongDetail }
