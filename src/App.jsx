@@ -322,14 +322,112 @@ function shuffle(arr) {
   return a;
 }
 
-const MODES = {
-  basic:  { key:"basic",  icon:"📖", title:"基礎練習",       sub:"to動詞 vs 動詞ing の2択", color:"#00d4aa", count:20, time:null,
-            pool: () => shuffle(ALL_Q.filter(q => q.type === "TO" || q.type === "ING")).slice(0, 20) },
-  both:   { key:"both",   icon:"🔄", title:"BOTH 使い分け",   sub:"同じ動詞でも意味が変わる！", color:"#a78bfa", count:16, time:null,
-            pool: () => shuffle(ALL_Q.filter(q => q.type === "BOTH_TO" || q.type === "BOTH_ING")).slice(0, 16) },
-  attack: { key:"attack", icon:"⚡", title:"タイムアタック",   sub:"12秒制限・全問題から出題", color:"#f59e0b", count:25, time:12,
-            pool: () => shuffle(ALL_Q).slice(0, 25) },
+// 意味が変わる動詞（BOTH）の意味一覧 — ルール画面と「意味をえらぶ」問題の両方で使う
+const BOTH_MEANINGS = {
+  remember: { to:"これからやることを覚えておく（忘れずに〜する）", ing:"過去にしたことを覚えている" },
+  forget:   { to:"これからやることを忘れる",                     ing:"過去にしたことを忘れる" },
+  stop:     { to:"〜するために立ち止まる（手を止める）",         ing:"〜するのをやめる" },
+  try:      { to:"〜しようと努力する",                           ing:"試しに〜してみる（実験）" },
+  regret:   { to:"残念ながら〜する（フォーマル）",               ing:"過去にしたことを後悔する" },
 };
+
+const BASIC_POOL = ALL_Q.filter(q => q.type === "TO" || q.type === "ING");
+const BOTH_POOL  = ALL_Q.filter(q => q.type === "BOTH_TO" || q.type === "BOTH_ING");
+
+/** BOTHモード: 約4割を「形」ではなく「意味をえらぶ」問題にする */
+function withMeaningKinds(list) {
+  const n = Math.round(list.length * 0.4);
+  const pick = new Set(shuffle(list.map((_, i) => i)).slice(0, n));
+  return list.map((q, i) => pick.has(i) ? { ...q, kind:"meaning" } : q);
+}
+
+const MODES = {
+  basic:  { key:"basic",  icon:"📖", title:"基礎練習",       sub:"to + 動詞 か 動詞ing か、2択でえらぶ（時間制限なし）", color:"#00d4aa", count:20, max:BASIC_POOL.length, time:null,
+            pool: (n = 20) => shuffle(BASIC_POOL).slice(0, n) },
+  both:   { key:"both",   icon:"🔄", title:"意味が変わる動詞（BOTH）", sub:"stop to talk / stop talking — 形と意味の両方をえらぶ", color:"#a78bfa", count:16, max:BOTH_POOL.length, time:null,
+            pool: (n = 16) => withMeaningKinds(shuffle(BOTH_POOL).slice(0, n)) },
+  attack: { key:"attack", icon:"⚡", title:"タイムアタック",   sub:"1問12秒・全問題から出題", color:"#f59e0b", count:25, max:ALL_Q.length, time:12,
+            pool: (n = 25) => shuffle(ALL_Q).slice(0, n) },
+};
+
+const PORTAL_URL = "https://wise-english-portal.vercel.app";
+const IS_EMBEDDED = (() => { try { return window.parent !== window; } catch { return true; } })();
+
+/** コンボ倍率（得点計算と理論上の最高点の両方で使う） */
+function comboMul(nc) { return nc >= 10 ? 3 : nc >= 6 ? 2 : nc >= 3 ? 1.5 : 1; }
+/** 全問正解・最速で答えたときの最高点（ポータルへ送る maxScore 用） */
+function maxScoreFor(n, time) {
+  const tb = time ? Math.max(0, time - 1) * 8 : 0;
+  let t = 0;
+  for (let i = 1; i <= n; i++) t += Math.round((100 + tb) * comboMul(i));
+  return t;
+}
+
+// ─── ディープリンク ─────────────────────────────────────────
+// ?mode=basic|both|attack  &count=3〜  &start=1（ルール画面をとばす） &write=0（作文なし）
+function parseDeepLink() {
+  try {
+    const sp = new URLSearchParams(window.location.search);
+    const alias = { practice:"basic", basics:"basic", meaning:"both", time:"attack", timeattack:"attack" };
+    let mode = (sp.get("mode") || "").toLowerCase();
+    mode = alias[mode] || mode;
+    if (!MODES[mode]) mode = null;
+    const c = parseInt(sp.get("count"), 10);
+    const count = Number.isFinite(c) && c > 0 ? Math.max(3, c) : null;
+    return { mode, count, start: sp.get("start") === "1", write: sp.get("write") !== "0" };
+  } catch { return { mode:null, count:null, start:false, write:true }; }
+}
+const DEEPLINK = parseDeepLink();
+
+// ─── 最後の作文チャレンジ ───────────────────────────────────
+const WRITE_FRAMES = {
+  TO: [
+    { verb:"want", pre:"I want",  ja:"あなたが「したいこと」を英語で書こう", example:"to play soccer" },
+    { verb:"hope", pre:"I hope",  ja:"「できたらいいな」と思うことを英語で書こう", example:"to visit Okinawa" },
+    { verb:"need", pre:"I need",  ja:"「やらなきゃいけないこと」を英語で書こう", example:"to do my homework" },
+  ],
+  ING: [
+    { verb:"enjoy",  pre:"I enjoy",    ja:"あなたが「楽しんでいること」を英語で書こう", example:"playing games" },
+    { verb:"finish", pre:"I finished", ja:"「やり終えたこと」を英語で書こう", example:"reading the book" },
+  ],
+};
+function pickWriteFrames() {
+  return [
+    { ...shuffle(WRITE_FRAMES.TO)[0],  type:"TO"  },
+    { ...shuffle(WRITE_FRAMES.ING)[0], type:"ING" },
+  ];
+}
+// 原形が ing で終わる動詞（to sing は正しい / enjoy sing は正しくない）
+const BASE_ENDS_ING = new Set(["sing","bring","ring","swing","spring","sting","fling","cling","string","king","thing","wing","ping"]);
+/** 寛容な採点: つづりや内容は問わず、「to + 動詞」「動詞ing」の形になっていればOK */
+function checkWriting(frame, raw) {
+  let t = (raw || "").normalize("NFKC").toLowerCase().replace(/[’`]/g, "'").trim()
+    .replace(/[.!?。！？]+$/, "").replace(/\s+/g, " ").trim();
+  const pre = frame.pre.toLowerCase() + " ";
+  if (t.startsWith(pre)) t = t.slice(pre.length).trim();   // 文を全部書いてくれた場合
+  if (!t) return { ok:false, empty:true, text:"" };
+  const words = t.split(" ");
+  const isIngWord = w => /^[a-z]{2,}ing$/.test(w) && !BASE_ENDS_ING.has(w);
+  if (frame.type === "TO") {
+    if (words[0] !== "to") return { ok:false, text:t, why: isIngWord(words[0]) ? "ing" : "noto" };
+    if (!words[1] || !/^[a-z']+$/.test(words[1])) return { ok:false, text:t, why:"noverb" };
+    if (isIngWord(words[1])) return { ok:false, text:t, why:"toing" };
+    return { ok:true, text:t };
+  }
+  if (words[0] === "to") return { ok:false, text:t, why:"to" };
+  if (!isIngWord(words[0])) return { ok:false, text:t, why:"noing" };
+  return { ok:true, text:t };
+}
+function writeFeedback(frame, r) {
+  const v = frame.verb;
+  if (frame.type === "TO") {
+    if (r.why === "ing" || r.why === "toing") return `${v} のあとは「to + 動詞のもとの形」。ing はつけないよ。\n例: ${frame.pre} ${frame.example}.`;
+    if (r.why === "noverb") return `to のあとに動詞を書こう。\n例: ${frame.pre} ${frame.example}.`;
+    return `${v} のあとは to から始めよう。\n例: ${frame.pre} ${frame.example}.`;
+  }
+  if (r.why === "to") return `${v} のあとに to は使えないよ。動詞に ing をつけよう。\n例: ${frame.pre} ${frame.example}.`;
+  return `${v} のあとは「動詞 + ing」。さいしょの単語を 〜ing の形にしよう。\n例: ${frame.pre} ${frame.example}.`;
+}
 
 // ─── CSS ─────────────────────────────────────────────────────────────────────
 const CSS = `
@@ -403,8 +501,13 @@ const CSS = `
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [screen,     setScreen]     = useState("home");
-  const [activeMode, setActiveMode] = useState(null);
+  const [screen,     setScreen]     = useState(DEEPLINK.mode ? "rules" : "home");
+  const [activeMode, setActiveMode] = useState(DEEPLINK.mode);
+  const [countSel,   setCountSel]   = useState(DEEPLINK.count);   // null = モードの標準問題数
+  const [timeoutIds, setTimeoutIds] = useState([]);
+  const [writeFrames,  setWriteFrames]  = useState([]);
+  const [writeResults, setWriteResults] = useState([]);
+  const chosenRef = useRef({});   // 問題id → 実際にえらんだ答え（学習記録用）
   const [questions,  setQuestions]  = useState([]);
   const [qIdx,       setQIdx]       = useState(0);
   const [answered,   setAnswered]   = useState(null);
@@ -477,8 +580,11 @@ export default function App() {
       baseVerb = ingToBase(blank);
     }
     // Build -ing form from base verb
+    const IRREG_ING = { be:"being", visit:"visiting", open:"opening" };
     if (blank.endsWith("ing") && !isTO) {
       ing = blank; // Already in -ing form, use as-is
+    } else if (IRREG_ING[baseVerb]) {
+      ing = IRREG_ING[baseVerb];
     } else if (baseVerb.endsWith("e") && !baseVerb.endsWith("ee") && !baseVerb.endsWith("oe")) {
       ing = baseVerb.slice(0, -1) + "ing";
     } else if (/[^aeiou][aeiou][bdgmnprst]$/.test(baseVerb)) {
@@ -489,6 +595,12 @@ export default function App() {
     const toForm = "to " + baseVerb;
     const isBoth = q.type.startsWith("BOTH");
     const correctType = q.type === "BOTH_TO" ? "TO" : q.type === "BOTH_ING" ? "ING" : q.type;
+    if (q.kind === "meaning" && BOTH_MEANINGS[q.verb]) {
+      // 意味をえらぶ問題: 選択肢は「形」ではなく日本語の意味
+      const mTo  = { label: BOTH_MEANINGS[q.verb].to,  type:"TO",  hint: toForm };
+      const mIng = { label: BOTH_MEANINGS[q.verb].ing, type:"ING", hint: ing };
+      return Math.random() < 0.5 ? [mTo, mIng] : [mIng, mTo];
+    }
     const toOpt  = { label: toForm, type:"TO",  hint: isBoth ? (q.type === "BOTH_TO"  ? q.bothLabel : "別の意味") : null };
     const ingOpt = { label: ing,    type:"ING", hint: isBoth ? (q.type === "BOTH_ING" ? q.bothLabel : "別の意味") : null };
     // Randomize left/right position each time
@@ -497,13 +609,18 @@ export default function App() {
 
   const startGame = (modeKey, retryWrong = false) => {
     const c = MODES[modeKey];
+    const n = Math.min(c.max, countSel || c.count);
+    // 再挑戦は今回のセッションの問題から（意味問題かどうかも引きつぐ）
     const pool = retryWrong && wrongIds.length
-      ? shuffle(ALL_Q.filter(q => wrongIds.includes(q.id)))
-      : c.pool();
+      ? shuffle(questions.filter(q => wrongIds.includes(q.id)))
+      : c.pool(n);
     setActiveMode(modeKey);
     setQuestions(pool);
     setQIdx(0); setScore(0); setCombo(0); setMaxCombo(0);
-    setWrongIds([]); setParticles([]); setAnswered(null);
+    setWrongIds([]); setTimeoutIds([]); setParticles([]); setAnswered(null);
+    chosenRef.current = {};
+    setWriteResults([]);
+    setWriteFrames(DEEPLINK.write && !retryWrong ? pickWriteFrames() : []);
     setQKey(k => k + 1); setTimeLeft(c.time ?? 12);
     comboRef.current = 0; timeLRef.current = c.time ?? 12;
     optsRef.current = buildOpts(pool[0]);
@@ -512,10 +629,14 @@ export default function App() {
 
   const advance = useCallback(() => {
     const next = qIdx + 1;
-    if (next >= questions.length) { setScreen("result"); return; }
+    if (next >= questions.length) {
+      window.speechSynthesis && window.speechSynthesis.cancel();
+      setScreen(writeFrames.length ? "write" : "result");
+      return;
+    }
     setAnswered(null); setQIdx(next); setQKey(k => k + 1);
     optsRef.current = buildOpts(questions[next]);
-  }, [qIdx, questions]);
+  }, [qIdx, questions, writeFrames]);
 
   // timer effect
   useEffect(() => {
@@ -538,6 +659,8 @@ export default function App() {
     playWrongBuzz();
     setCombo(0); comboRef.current = 0;
     setWrongIds(w => w.includes(curQ.id) ? w : [...w, curQ.id]);
+    setTimeoutIds(w => w.includes(curQ.id) ? w : [...w, curQ.id]);
+    chosenRef.current[curQ.id] = "(時間切れ)";
     spawnParticles(false);
     // TTS: speak the correct sentence even on timeout
     speakEnglish(curQ.sentence.replace("___", curQ.blank));
@@ -562,13 +685,16 @@ export default function App() {
     clearTimeout(advRef.current);
     const correctType = curQ.type === "BOTH_TO" ? "TO" : curQ.type === "BOTH_ING" ? "ING" : curQ.type;
     const ok = opt.type === correctType;
+    const isMeaning = curQ.kind === "meaning";
+    const fullSentence = curQ.sentence.replace("___", curQ.blank);
+    if (!ok) chosenRef.current[curQ.id] = opt.label;
     setAnswered({ chosenType: opt.type, correct: ok, timeout: false });
     spawnParticles(ok);
     if (ok) {
       playCorrectChime();
       const tb  = hasTimer ? Math.max(0, timeLRef.current - 1) * 8 : 0;
       const nc  = comboRef.current + 1;
-      const mul = nc >= 10 ? 3 : nc >= 6 ? 2 : nc >= 3 ? 1.5 : 1;
+      const mul = comboMul(nc);
       const pts = Math.round((100 + tb) * mul);
       comboRef.current = nc;
       setCombo(nc); setMaxCombo(mc => Math.max(mc, nc));
@@ -581,7 +707,11 @@ export default function App() {
       setWrongIds(w => w.includes(curQ.id) ? w : [...w, curQ.id]);
       // Report wrong answer to WiseXP
       if (window.WiseXP) {
-        window.WiseXP.reportWrong({ question: curQ.sentence, correct: correctType + " → " + curQ.blank, playerAnswer: opt.type });
+        try {
+          window.WiseXP.reportWrong(isMeaning
+            ? { question: fullSentence + "（意味は？）", correct: BOTH_MEANINGS[curQ.verb][correctType === "TO" ? "to" : "ing"], playerAnswer: opt.label }
+            : { question: curQ.sentence, correct: correctType + " → " + curQ.blank, playerAnswer: opt.type });
+        } catch (_) { /* SDK error must not break the game */ }
       }
       // TTS: speak the correct sentence so student learns
       speakEnglish(curQ.sentence.replace("___", curQ.blank));
@@ -590,7 +720,24 @@ export default function App() {
   }, [answered, curQ, hasTimer, advance]);
 
   useEffect(() => () => { clearTimeout(advRef.current); clearInterval(timerRef.current); }, []);
-  useEffect(() => { if (window.WiseXP) window.WiseXP.init('grammar-drill'); }, []);
+  useEffect(() => { try { if (window.WiseXP) window.WiseXP.init('grammar-drill'); } catch (_) { /* ignore */ } }, []);
+  // ディープリンク ?start=1 : ルール画面をとばしてすぐ始める
+  useEffect(() => { if (DEEPLINK.mode && DEEPLINK.start) startGame(DEEPLINK.mode); /* eslint-disable-next-line */ }, []);
+
+  const finishWriting = (results) => {
+    setWriteResults(results);
+    results.forEach(r => {
+      if (r.firstWrong == null) return;
+      try {
+        window.WiseXP && window.WiseXP.reportWrong({
+          question: r.frame.pre + " ___.（自分で文を作る）",
+          correct: r.frame.type === "TO" ? "to + 動詞" : "動詞 + ing",
+          playerAnswer: r.firstWrong,
+        });
+      } catch (_) { /* ignore */ }
+    });
+    setScreen("result");
+  };
   // Options are already set in startGame() and advance() — do NOT rebuild here
   // as buildOpts randomizes button positions, causing left/right swap after render.
 
@@ -613,10 +760,20 @@ export default function App() {
         const wrongDetail = questions.filter(q => wrongIds.includes(q.id))
           .map(q => {
             const ct = q.type === "BOTH_TO" ? "TO" : q.type === "BOTH_ING" ? "ING" : q.type;
-            return { q: q.sentence, correct: ct + " → " + q.blank, chosen: "", tag: ct === "TO" ? "to_infinitive" : "gerund" };
-          }).slice(0, 20);
+            const chosen = chosenRef.current[q.id] || "";
+            const tag = ct === "TO" ? "to_infinitive" : "gerund";
+            return q.kind === "meaning"
+              ? { q: q.sentence.replace("___", q.blank) + "（意味は？）", correct: BOTH_MEANINGS[q.verb][ct === "TO" ? "to" : "ing"], chosen, tag }
+              : { q: q.sentence, correct: ct + " → " + q.blank, chosen, tag };
+          })
+          .concat(writeResults.filter(r => r.firstWrong != null).map(r => ({
+            q: r.frame.pre + " ___.（自分で文を作る）",
+            correct: r.frame.type === "TO" ? "to + 動詞" : "動詞 + ing",
+            chosen: r.firstWrong, tag: r.frame.type === "TO" ? "to_infinitive" : "gerund",
+          })))
+          .slice(0, 20);
         window.WiseGame && window.WiseGame.reportComplete({
-          score: score, maxScore: questions.length * 10, accuracy: acc,
+          score: score, maxScore: maxScoreFor(questions.length, MODES[activeMode].time), accuracy: acc,
           metadata: { mode: activeMode, maxCombo: maxCombo, wrongAnswers: wrongDetail }
         });
       } catch(e) {}
@@ -626,11 +783,13 @@ export default function App() {
         appendWrongLog(wrongIds, questions);
       }
       // Report game result to WiseXP
-      if (window.WiseXP) {
-        const correct = questions.length - wrongIds.length;
-        const grade = acc >= 95 ? "S" : acc >= 80 ? "A" : acc >= 65 ? "B" : "C";
-        window.WiseXP.reportGame({ score, correct, total: questions.length, maxCombo, grade });
-      }
+      try {
+        if (window.WiseXP) {
+          const correct = questions.length - wrongIds.length;
+          const grade = acc >= 95 ? "S" : acc >= 80 ? "A" : acc >= 65 ? "B" : "C";
+          window.WiseXP.reportGame({ score, correct, total: questions.length, maxCombo, grade });
+        }
+      } catch (_) { /* SDK error must not break the result screen */ }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
@@ -647,7 +806,8 @@ export default function App() {
       <BgGrid />
 
       {screen === "home"   && <HomeScreen   onMode={m => { setActiveMode(m); setScreen("rules"); }} records={records} bestCombos={bestCombos} />}
-      {screen === "rules"  && cfg && <RulesScreen mode={cfg} onStart={() => startGame(activeMode)} onBack={() => setScreen("home")} />}
+      {screen === "rules"  && cfg && <RulesScreen mode={cfg} countSel={countSel} onCount={setCountSel} onStart={() => startGame(activeMode)} onBack={() => setScreen("home")} />}
+      {screen === "write"  && writeFrames.length > 0 && <WriteScreen frames={writeFrames} onDone={finishWriting} />}
       {screen === "play"   && curQ && (
         <PlayScreen
           q={curQ} qIdx={qIdx} total={questions.length} opts={opts}
@@ -661,7 +821,7 @@ export default function App() {
       )}
       {screen === "result" && (
         <ResultScreen
-          questions={questions} wrongIds={wrongIds} score={score}
+          questions={questions} wrongIds={wrongIds} timeoutIds={timeoutIds} writeResults={writeResults} score={score}
           maxCombo={maxCombo} accuracy={accuracy} cfg={cfg}
           onRestart={() => startGame(activeMode)}
           onRetry={wrongIds.length > 0 ? () => startGame(activeMode, true) : null}
@@ -755,12 +915,16 @@ function HomeScreen({ onMode, records, bestCombos }) {
     <div className="scroll" style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px" }}>
       <div style={{ textAlign:"center", marginBottom:28 }}>
         <div style={{ width:64, height:64, borderRadius:18, background:"linear-gradient(135deg,#00d4aa,#0ea5e9)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, fontWeight:900, color:"#060810", margin:"0 auto 16px", boxShadow:"0 0 36px rgba(0,212,170,.3)" }}>動</div>
-        <div style={{ fontSize:11, fontFamily:"Space Mono", color:"#00d4aa", letterSpacing:4, marginBottom:10 }}>VERB PATTERN MASTERY</div>
-        <h1 style={{ fontSize:"clamp(30px,7vw,48px)", fontWeight:900, color:"#fff", letterSpacing:-1, lineHeight:1.1, marginBottom:8 }}>
-          Verb<span style={{ color:"#00d4aa" }}>Form</span> <span style={{ color:"#a78bfa" }}>Battle</span>
+        <div style={{ fontSize:11, fontFamily:"Space Mono", color:"#00d4aa", letterSpacing:4, marginBottom:10 }}>VERBFORM BATTLE</div>
+        <h1 style={{ fontSize:"clamp(26px,6.4vw,42px)", fontWeight:900, color:"#fff", letterSpacing:-1, lineHeight:1.2, marginBottom:10 }}>
+          <span style={{ color:"#f59e0b" }}>to</span> / <span style={{ color:"#00d4aa" }}>ing</span> 使い分けドリル
         </h1>
+        <p style={{ fontSize:13, color:"#8a93a6", lineHeight:1.8, marginBottom:6 }}>
+          want のあとは <b style={{ color:"#f59e0b" }}>to play</b>？ enjoy のあとは <b style={{ color:"#00d4aa" }}>playing</b>？<br />
+          動詞のあとにくる形（不定詞 / 動名詞）をえらぶ練習
+        </p>
         <p style={{ fontSize:13, color:"#666", lineHeight:1.8 }}>
-          英検4〜3級　全{ALL_Q.length}問収録<br />
+          英検3級〜準2級めやす　全{ALL_Q.length}問収録<br />
           <span style={{ color:"#2a3040", fontSize:12 }}>TO {toN}問 ／ ING {ingN}問 ／ BOTH {bothN}問</span>
         </p>
       </div>
@@ -775,7 +939,7 @@ function HomeScreen({ onMode, records, bestCombos }) {
         {[
           { l:"TO動詞",   v:toN+"問",   c:"#f59e0b" },
           { l:"ING動詞",  v:ingN+"問",  c:"#00d4aa" },
-          { l:"BOTH使い分け", v:bothN+"問", c:"#a78bfa" },
+          { l:"意味が変わる動詞", v:bothN+"問", c:"#a78bfa" },
         ].map((s, i) => (
           <div key={i} style={{ textAlign:"center", padding:"10px 16px", borderRadius:10, background:"#0a0e16", border:"1px solid #151c28" }}>
             <div style={{ fontSize:10, color:"#444", fontFamily:"Space Mono", marginBottom:4 }}>{s.l}</div>
@@ -785,7 +949,17 @@ function HomeScreen({ onMode, records, bestCombos }) {
       </div>
 
       <WrongReviewPanel />
+      <PortalLink />
     </div>
+  );
+}
+
+function PortalLink() {
+  if (IS_EMBEDDED) return null;   // MoWISE 内に埋め込まれているときは出さない
+  return (
+    <a href={PORTAL_URL} style={{ display:"inline-block", marginTop:22, fontSize:12, color:"#5b6577", textDecoration:"none", padding:"8px 14px", borderRadius:10, border:"1px solid #151c28" }}>
+      🏠 学習ホームにもどる
+    </a>
   );
 }
 
@@ -810,9 +984,11 @@ function ModeCard({ m, best, combo, onClick }) {
 }
 
 // ─── RULES SCREEN ────────────────────────────────────────
-function RulesScreen({ mode, onStart, onBack }) {
+function RulesScreen({ mode, countSel, onCount, onStart, onBack }) {
   const isBoth   = mode.key === "both";
   const isAttack = mode.key === "attack";
+  const curCount = Math.min(mode.max, countSel || mode.count);
+  const countOpts = [...new Set([5, 10, mode.count, curCount])].filter(n => n <= mode.max).sort((a, b) => a - b);
 
   return (
     <div style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"60px 20px 40px" }}>
@@ -825,13 +1001,12 @@ function RulesScreen({ mode, onStart, onBack }) {
         {isBoth ? (
           <div style={{ textAlign:"left", marginBottom:20 }}>
             <div style={{ fontSize:11, color:"#a78bfa", fontFamily:"Space Mono", letterSpacing:3, textAlign:"center", marginBottom:14 }}>BOTH ルール解説</div>
-            {[
-              { v:"remember", to:"これからやることを覚えておく",         ing:"過去にしたことを覚えている" },
-              { v:"forget",   to:"これからやることを忘れる",              ing:"過去にしたことを忘れる" },
-              { v:"stop",     to:"〜するために立ち止まる",                ing:"〜するのをやめる" },
-              { v:"try",      to:"〜しようと努力する",                    ing:"試しに〜してみる（実験）" },
-              { v:"regret",   to:"残念ながら〜する（フォーマル）",        ing:"過去にしたことを後悔する" },
-            ].map((r, i) => (
+            <div style={{ fontSize:12, color:"#8a93a6", lineHeight:1.8, marginBottom:12, padding:"10px 14px", borderRadius:12, background:"#a78bfa0a", border:"1px solid #a78bfa1e" }}>
+              問題は2しゅるい出るよ。<br />
+              ① 日本語に合う<b style={{ color:"#ccc" }}>形</b>（to / ing）をえらぶ<br />
+              ② 英文を読んで、その<b style={{ color:"#ccc" }}>意味</b>をえらぶ
+            </div>
+            {Object.entries(BOTH_MEANINGS).map(([v, m]) => ({ v, to:m.to, ing:m.ing })).map((r, i) => (
               <div key={i} style={{ marginBottom:10, padding:"12px 14px", borderRadius:12, background:"#0a0e16", border:"1px solid #141926" }}>
                 <div style={{ fontSize:13, fontWeight:800, color:"#a78bfa", marginBottom:8, fontFamily:"Space Mono" }}>{r.v}</div>
                 <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
@@ -867,6 +1042,23 @@ function RulesScreen({ mode, onStart, onBack }) {
           </div>
         )}
 
+        <div style={{ marginBottom:18 }}>
+          <div style={{ fontSize:11, color:"#555", marginBottom:8 }}>問題数</div>
+          <div style={{ display:"flex", gap:8, justifyContent:"center", flexWrap:"wrap" }}>
+            {countOpts.map(n => (
+              <button key={n} className="btn" onClick={() => onCount(n)} style={{
+                padding:"8px 16px", borderRadius:10, fontSize:13, fontWeight:700, cursor:"pointer",
+                background: n === curCount ? `${mode.color}22` : "#0a0e16",
+                border: `1px solid ${n === curCount ? mode.color : "#1e2535"}`,
+                color: n === curCount ? mode.color : "#666",
+              }}>{n}問</button>
+            ))}
+          </div>
+          {DEEPLINK.write && (
+            <div style={{ fontSize:11, color:"#555", marginTop:10 }}>さいごに ✍️ 自分で1文つくるチャレンジ（2問）があるよ</div>
+          )}
+        </div>
+
         <button className="btn" onClick={onStart} style={{ padding:"14px 52px", borderRadius:12, border:"none", background:`linear-gradient(135deg,${mode.color},${mode.color}bb)`, color:"#060810", fontSize:16, fontWeight:800, letterSpacing:2, cursor:"pointer" }}>
           START ▶
         </button>
@@ -889,6 +1081,7 @@ function RBox({ color, title, rows, sub }) {
 function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, hasTimer, cfg, particles, qKey, onAnswer, onAdvance, onBack }) {
   const correctType = q.type === "BOTH_TO" ? "TO" : q.type === "BOTH_ING" ? "ING" : q.type;
   const isBoth      = q.type.startsWith("BOTH");
+  const isMeaning   = q.kind === "meaning";
   const progPct     = (qIdx / total) * 100;
   const timerCrit   = hasTimer && timeLeft <= 4;
   const timerColor  = timerCrit ? "#ef4444" : timeLeft <= 7 ? "#f59e0b" : "#00d4aa";
@@ -939,7 +1132,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
       {/* Verb tag */}
       <div style={{ textAlign:"center", margin:"6px 0 2px" }}>
         <span style={{ display:"inline-block", padding:"4px 16px", borderRadius:20, background:"#0d111a", border:`1px solid ${isBoth?"#a78bfa44":"#1e2535"}`, color:isBoth?"#a78bfa":"#444", fontSize:11, fontFamily:"Space Mono", letterSpacing:3 }}>
-          {q.verb.toUpperCase()}{isBoth ? " — BOTH!" : ""}
+          {q.verb.toUpperCase()}{isMeaning ? " — 意味をえらぼう" : isBoth ? " — BOTH!" : ""}
         </span>
       </div>
 
@@ -953,19 +1146,21 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
               {i < arr.length - 1 && (
                 <span style={{
                   display:"inline-block", minWidth:108, textAlign:"center",
-                  borderBottom:`3px solid ${answered ? (answered.correct ? "#00d4aa" : "#ef4444") : "#1e2535"}`,
-                  color: answered ? (answered.correct ? "#00d4aa" : "#ef4444") : "transparent",
+                  borderBottom:`3px solid ${answered ? (answered.correct ? "#00d4aa" : "#ef4444") : isMeaning ? "#a78bfa" : "#1e2535"}`,
+                  color: answered ? (answered.correct ? "#00d4aa" : "#ef4444") : isMeaning ? "#c4b5fd" : "transparent",
                   fontWeight:900, transition:"all .3s", paddingBottom:1,
                   fontSize:"clamp(14px,3.8vw,20px)",
                 }}>
-                  {answered ? q.blank : "　　"}
+                  {answered || isMeaning ? q.blank : "　　"}
                 </span>
               )}
             </span>
           ))}
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-          <div style={{ fontSize:13, color:"#444", fontFamily:"Noto Sans JP", flex:1 }}>{q.ja}</div>
+          <div style={{ fontSize:13, color: isMeaning && !answered ? "#a78bfa" : "#444", fontFamily:"Noto Sans JP", flex:1 }}>
+            {isMeaning && !answered ? `この文の ${q.verb} … は、どっちの意味？` : q.ja}
+          </div>
           {answered && (
             <button className="btn" onClick={() => speakEnglish(q.sentence.replace("___", q.blank))}
               style={{ flexShrink:0, width:34, height:34, borderRadius:8, background:"#0d111a", border:"1px solid #1e2535", color:"#00d4aa", fontSize:16, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}
@@ -974,7 +1169,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
             </button>
           )}
         </div>
-        {isBoth && !answered && (
+        {isBoth && !isMeaning && !answered && (
           <div style={{ marginTop:10, padding:"8px 12px", borderRadius:8, background:"#a78bfa0a", border:"1px solid #a78bfa1e" }}>
             <div style={{ fontSize:10, color:"#a78bfa", fontFamily:"Space Mono", letterSpacing:2, marginBottom:2 }}>HINT</div>
             <div style={{ fontSize:12, color:"#777" }}>{q.bothHint}</div>
@@ -998,10 +1193,14 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
           return (
             <button key={i} className={extra} disabled={!!answered} onClick={() => onAnswer(opt)}
               style={{ background:bg, borderColor:bdr, color:tc }}>
+              {(!isMeaning || answered) && (
               <div style={{ fontSize:10, color: answered && !isCorrect && !isChosen ? "#1e2535" : RC, fontFamily:"Space Mono", letterSpacing:2, marginBottom:5, transition:"color .3s" }}>
                 {isTO ? "to + 動詞" : "動詞 + ing"}
               </div>
-              <div style={{ fontSize:"clamp(15px,4vw,21px)", fontWeight:800, letterSpacing:.5, lineHeight:1.2 }}>{opt.label}</div>
+              )}
+              <div style={isMeaning
+                ? { fontSize:"clamp(13px,3.4vw,16px)", fontWeight:700, lineHeight:1.5, fontFamily:"Noto Sans JP" }
+                : { fontSize:"clamp(15px,4vw,21px)", fontWeight:800, letterSpacing:.5, lineHeight:1.2 }}>{opt.label}</div>
               {isBoth && opt.hint && answered && (
                 <div style={{ fontSize:10, marginTop:5, color: isTO ? "#f59e0b66" : "#00d4aa66", fontFamily:"Noto Sans JP" }}>{opt.hint}</div>
               )}
@@ -1014,7 +1213,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
       {answered && (
         <div className="fade-in" style={{ margin:"10px 14px 0", padding:"12px 14px", borderRadius:14, background:answered.correct?"#00d4aa0a":"#ef44440a", border:`1px solid ${answered.correct?"#00d4aa2e":"#ef44442e"}` }}>
           <div style={{ fontSize:12, fontWeight:800, color: answered.correct ? "#00d4aa" : answered.timeout ? "#f59e0b" : "#ef4444", marginBottom:5, fontFamily:"Space Mono" }}>
-            {answered.timeout ? "⏱ TIME'S UP!" : answered.correct ? `✓ CORRECT!${combo >= 3 ? ` — ${combo}x COMBO` : ""}` : "✗ INCORRECT"}
+            {answered.timeout ? "⏱ 時間切れ（まちがいとは別に数えるよ）" : answered.correct ? `✓ CORRECT!${combo >= 3 ? ` — ${combo}x COMBO` : ""}` : "✗ INCORRECT"}
           </div>
           <div style={{ fontSize:13, color:"#999", lineHeight:1.9, fontFamily:"Noto Sans JP", whiteSpace:"pre-line" }}>{q.ex}</div>
           <button
@@ -1040,9 +1239,10 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
 }
 
 // ─── RESULT SCREEN ───────────────────────────────────────
-function ResultScreen({ questions, wrongIds, score, maxCombo, accuracy, cfg, onRestart, onRetry, onHome, records, bestCombos }) {
+function ResultScreen({ questions, wrongIds, timeoutIds = [], writeResults = [], score, maxCombo, accuracy, cfg, onRestart, onRetry, onHome, records, bestCombos }) {
   const total       = questions.length;
-  const wrongCount  = wrongIds.length;
+  const timeoutCount = timeoutIds.length;
+  const wrongCount  = wrongIds.length - timeoutCount;   // えらんでまちがえた数（時間切れは別）
   const rank = accuracy >= 95 ? "S" : accuracy >= 80 ? "A" : accuracy >= 65 ? "B" : "C";
   const RC   = { S:"#f59e0b", A:"#00d4aa", B:"#60a5fa", C:"#a78bfa" }[rank];
   const RE   = { S:"🏆", A:"⭐", B:"👍", C:"💪" }[rank];
@@ -1068,6 +1268,8 @@ function ResultScreen({ questions, wrongIds, score, maxCombo, accuracy, cfg, onR
             { l:"正解率",     v: accuracy+"%",                  c: RC },
             { l:"最大コンボ", v: maxCombo+"x",                  c:"#f59e0b" },
             { l:"ミス",       v: wrongCount+"問",               c: wrongCount===0?"#00d4aa":"#ef4444" },
+            ...(cfg?.time ? [{ l:"時間切れ", v: timeoutCount+"問", c: timeoutCount===0?"#00d4aa":"#f59e0b" }] : []),
+            ...(writeResults.length ? [{ l:"✍️ 作文", v: writeResults.filter(r => r.ok).length+"/"+writeResults.length, c:"#a78bfa" }] : []),
           ].map((s, i) => (
             <div key={i} style={{ padding:"12px 14px", borderRadius:12, background:"#0a0e16", border:"1px solid #141926", textAlign:"center" }}>
               <div style={{ fontSize:10, color:"#444", fontFamily:"Space Mono", letterSpacing:2, marginBottom:4 }}>{s.l}</div>
@@ -1087,6 +1289,18 @@ function ResultScreen({ questions, wrongIds, score, maxCombo, accuracy, cfg, onR
           </div>
         )}
 
+        {writeResults.some(r => r.ok) && (
+          <div style={{ marginBottom:16, padding:"12px 14px", borderRadius:12, background:"#0a0e16", border:"1px solid #141926", textAlign:"left" }}>
+            <div style={{ fontSize:10, color:"#444", fontFamily:"Space Mono", letterSpacing:2, marginBottom:8 }}>あなたが作った文</div>
+            {writeResults.filter(r => r.ok).map((r, i) => (
+              <div key={i} style={{ fontSize:14, color:"#ddd", lineHeight:1.8 }}>
+                {r.frame.pre} <b style={{ color: r.frame.type === "TO" ? "#f59e0b" : "#00d4aa" }}>{r.text}</b>.
+              </div>
+            ))}
+            <div style={{ fontSize:10, color:"#444", marginTop:6 }}>※ to / ing の形だけをチェックしています。つづりや内容は先生に見てもらおう。</div>
+          </div>
+        )}
+
         <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
           <button className="btn" onClick={onRestart} style={{ padding:"13px", borderRadius:12, border:"none", background:`linear-gradient(135deg,${cfg?.color},${cfg?.color}bb)`, color:"#060810", fontSize:15, fontWeight:800, letterSpacing:2, cursor:"pointer" }}>
             もう一度
@@ -1100,6 +1314,96 @@ function ResultScreen({ questions, wrongIds, score, maxCombo, accuracy, cfg, onR
             ← ホームへ戻る
           </button>
         </div>
+        <PortalLink />
+      </div>
+    </div>
+  );
+}
+
+// ─── WRITE SCREEN（最後に1文ずつ自分で完成させる） ─────────
+function WriteScreen({ frames, onDone }) {
+  const [idx, setIdx]       = useState(0);
+  const [value, setValue]   = useState("");
+  const [fb, setFb]         = useState(null);      // { ok, msg }
+  const [results, setResults] = useState([]);
+  const firstWrongRef = useRef(null);
+  const frame = frames[idx];
+  const isTO  = frame.type === "TO";
+  const C     = isTO ? "#f59e0b" : "#00d4aa";
+
+  const next = (res) => {
+    const all = [...results, res];
+    if (idx + 1 >= frames.length) { onDone(all); return; }
+    setResults(all); setIdx(idx + 1); setValue(""); setFb(null); firstWrongRef.current = null;
+  };
+  const check = () => {
+    const r = checkWriting(frame, value);
+    if (r.empty) { setFb({ ok:false, msg:"英語で書いてみよう。" }); return; }
+    if (r.ok) {
+      playCorrectChime();
+      speakEnglish(`${frame.pre} ${r.text}.`);
+      setFb({ ok:true, text:r.text, msg: isTO ? `${frame.verb} + to + 動詞 の形になっているね！` : `${frame.verb} + 動詞ing の形になっているね！` });
+    } else {
+      playWrongBuzz();
+      if (firstWrongRef.current == null) firstWrongRef.current = `${frame.pre} ${r.text}`;
+      setFb({ ok:false, msg: writeFeedback(frame, r) });
+    }
+  };
+
+  return (
+    <div style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 16px" }}>
+      <div className="pop" key={idx} style={{ width:"100%", maxWidth:460 }}>
+        <div style={{ textAlign:"center", marginBottom:16 }}>
+          <div style={{ fontSize:11, color:"#a78bfa", fontFamily:"Space Mono", letterSpacing:3, marginBottom:6 }}>✍️ さいごのチャレンジ {idx + 1}/{frames.length}</div>
+          <h2 style={{ fontSize:20, fontWeight:900, color:"#fff", marginBottom:6 }}>自分のことを1文で書こう</h2>
+          <p style={{ fontSize:13, color:"#8a93a6", lineHeight:1.7 }}>{frame.ja}</p>
+        </div>
+
+        <div style={{ padding:"20px 16px", borderRadius:18, background:"#0a0e16", border:"1px solid #141926" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap", fontSize:"clamp(17px,4.4vw,22px)", color:"#ddd", fontWeight:700 }}>
+            <span>{frame.pre}</span>
+            <input
+              value={value} disabled={fb?.ok}
+              onChange={e => { setValue(e.target.value); if (fb && !fb.ok) setFb(null); }}
+              onKeyDown={e => { if (e.key === "Enter" && !e.nativeEvent.isComposing && !fb?.ok) check(); }}
+              placeholder="つづきを英語で"
+              aria-label={`${frame.pre} のつづきを書く`}
+              lang="en" autoCapitalize="none" autoCorrect="off" autoComplete="off" spellCheck={false}
+              style={{ flex:1, minWidth:150, padding:"10px 12px", borderRadius:10, background:"#060810", border:`2px solid ${fb ? (fb.ok ? "#00d4aa" : "#ef4444") : C + "66"}`, color:"#fff", fontSize:"clamp(16px,4.2vw,20px)", fontFamily:"inherit", fontWeight:700, outline:"none" }}
+            />
+            <span>.</span>
+          </div>
+          <div style={{ fontSize:11, color:"#555", marginTop:10, lineHeight:1.7 }}>
+            {frame.verb} のあとは「to + 動詞」？「動詞 + ing」？ 形が合っていればOK！
+          </div>
+
+          {fb && (
+            <div className="fade-in" style={{ marginTop:12, padding:"10px 12px", borderRadius:12, background: fb.ok ? "#00d4aa0a" : "#ef44440a", border:`1px solid ${fb.ok ? "#00d4aa2e" : "#ef44442e"}`, fontSize:13, color: fb.ok ? "#5eead4" : "#fca5a5", lineHeight:1.8, whiteSpace:"pre-line", fontFamily:"Noto Sans JP" }}>
+              {fb.ok ? "✓ " : ""}{fb.msg}
+            </div>
+          )}
+
+          {fb?.ok ? (
+            <button className="btn" onClick={() => next({ frame, ok:true, text:fb.text, firstWrong:firstWrongRef.current })}
+              style={{ marginTop:14, width:"100%", padding:"12px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#00d4aa,#0ea5e9)", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+              {idx + 1 >= frames.length ? "結果を見る" : "次へ"}
+            </button>
+          ) : (
+            <button className="btn" onClick={check}
+              style={{ marginTop:14, width:"100%", padding:"12px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C},${C}bb)`, color:"#060810", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+              チェックする
+            </button>
+          )}
+        </div>
+
+        {!fb?.ok && (
+          <div style={{ textAlign:"center", marginTop:14 }}>
+            <button className="btn" onClick={() => next({ frame, ok:false, skipped:true, text:"", firstWrong:firstWrongRef.current })}
+              style={{ background:"none", border:"none", color:"#555", fontSize:12, cursor:"pointer", textDecoration:"underline" }}>
+              とばす
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
