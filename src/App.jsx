@@ -399,33 +399,104 @@ function pickWriteFrames() {
 }
 // 原形が ing で終わる動詞（to sing は正しい / enjoy sing は正しくない）
 const BASE_ENDS_ING = new Set(["sing","bring","ring","swing","spring","sting","fling","cling","string","king","thing","wing","ping"]);
-/** 寛容な採点: つづりや内容は問わず、「to + 動詞」「動詞ing」の形になっていればOK */
+
+// 動詞かどうかの判定用リスト
+const BASE_VERBS = new Set([
+  "play","study","eat","run","swim","read","go","stop","enjoy","finish","want","need","try","hope",
+  "decide","learn","help","make","take","give","get","see","watch","listen","hear","speak","talk",
+  "write","draw","cook","clean","wash","drive","fly","walk","sit","stand","sleep","wake","work",
+  "buy","sell","send","receive","open","close","start","begin","end","use","do","have","be",
+  "come","leave","stay","live","die","love","like","hate","know","think","feel","believe",
+  "remember","forget","understand","mean","ask","answer","tell","say","show","teach","practice",
+  "plan","promise","agree","refuse","choose","pick","put","set","keep","hold","move","carry",
+  "turn","pull","push","cut","break","fix","build","grow","change","become","happen","wait",
+  "look","find","lose","win","fail","pass","spend","pay","save","travel","visit","meet","join",
+  "invite","introduce","celebrate","imagine","create","design","paint","dance","sing","act",
+  "exercise","stretch","climb","jump","kick","throw","catch","hit","ride","skate","ski","surf",
+  "camp","hike","fish","hunt","plant","water","feed","raise","bake","grill","fry","boil","mix",
+  "pour","serve","taste","smell","touch","wear","dress","hang","fold","sew","type","print","copy",
+  "share","post","upload","download","search","click","log","sign","call","text","email","chat",
+  "blog","code","test","check","count","measure","add","subtract","multiply","divide","solve",
+  "explain","describe","compare","discuss","argue","debate","present","report","review","edit",
+  "translate","improve","develop","research","explore","discover","wonder","wish","dream",
+  "achieve","succeed","complete","continue","repeat","return","survive","escape","protect",
+  "support","encourage","prepare","collect","organize","manage","control","handle","deal",
+  "fight","compete","challenge","score","train","coach","lead","follow","obey","allow",
+]);
+// 過去形・過去分詞・名詞など、原形でないもの
+const NON_BASE_FORMS = new Set([
+  "went","came","did","had","was","were","ate","ran","swam","read","got","saw","took","gave",
+  "made","said","told","knew","thought","felt","found","lost","won","bought","sold","sent",
+  "kept","held","broke","built","began","became","chose","drove","flew","grew","left","meant",
+  "paid","put","sat","stood","understood","written","spoken","taken","given","seen","done",
+  "been","gone","eaten","drunk","sung","worn","drawn","thrown","caught","taught","brought",
+]);
+// ing で終わるが動詞ではない語
+const NON_VERB_ING = new Set([
+  "morning","evening","nothing","something","everything","anything","building","ceiling",
+  "feeling","meaning","beginning","ending","opening","clothing","during","king","ring",
+  "string","thing","wing","spring","darling","sibling","sterling","pudding","wedding",
+  "blessing","crossing","painting","drawing","writing","reading","meeting","setting",
+]);
+
+function isLikelyVerb(w) {
+  if (BASE_VERBS.has(w)) return true;
+  if (NON_BASE_FORMS.has(w)) return false;
+  // 短すぎる語・よくある非動詞パターンは除外
+  if (w.length < 2) return false;
+  return false; // 辞書にない語は動詞と認めない
+}
+
+function getIngStem(w) {
+  // running→run, swimming→swim, stopping→stop（子音重複）
+  if (/(.)\1ing$/.test(w)) return w.slice(0, -4);
+  // making→make, having→have（e脱落）
+  if (w.endsWith("ing") && w.length > 4) {
+    const stem = w.slice(0, -3);
+    if (BASE_VERBS.has(stem)) return stem;
+    if (BASE_VERBS.has(stem + "e")) return stem + "e";
+    // lying→lie, dying→die
+    if (stem.endsWith("y") && BASE_VERBS.has(stem.slice(0,-1) + "ie")) return stem.slice(0,-1) + "ie";
+    return stem;
+  }
+  return w.slice(0, -3);
+}
+
+/** 作文の採点: to + 動詞原形 / 動詞ing の形で、動詞が実在するかも検証する */
 function checkWriting(frame, raw) {
-  let t = (raw || "").normalize("NFKC").toLowerCase().replace(/[’`]/g, "'").trim()
+  let t = (raw || "").normalize("NFKC").toLowerCase().replace(/[‘`]/g, "’").trim()
     .replace(/[.!?。！？]+$/, "").replace(/\s+/g, " ").trim();
   const pre = frame.pre.toLowerCase() + " ";
-  if (t.startsWith(pre)) t = t.slice(pre.length).trim();   // 文を全部書いてくれた場合
+  if (t.startsWith(pre)) t = t.slice(pre.length).trim();
   if (!t) return { ok:false, empty:true, text:"" };
   const words = t.split(" ");
-  const isIngWord = w => /^[a-z]{2,}ing$/.test(w) && !BASE_ENDS_ING.has(w);
+  const isIngWord = w => /^[a-z]{2,}ing$/.test(w) && !BASE_ENDS_ING.has(w) && !NON_VERB_ING.has(w);
   if (frame.type === "TO") {
     if (words[0] !== "to") return { ok:false, text:t, why: isIngWord(words[0]) ? "ing" : "noto" };
-    if (!words[1] || !/^[a-z']+$/.test(words[1])) return { ok:false, text:t, why:"noverb" };
+    if (!words[1] || !/^[a-z’]+$/.test(words[1])) return { ok:false, text:t, why:"noverb" };
     if (isIngWord(words[1])) return { ok:false, text:t, why:"toing" };
+    if (NON_BASE_FORMS.has(words[1])) return { ok:false, text:t, why:"notbase" };
+    if (!isLikelyVerb(words[1])) return { ok:false, text:t, why:"notverb" };
     return { ok:true, text:t };
   }
   if (words[0] === "to") return { ok:false, text:t, why:"to" };
   if (!isIngWord(words[0])) return { ok:false, text:t, why:"noing" };
+  // ing を取った語が動詞か確認
+  const stem = getIngStem(words[0]);
+  if (!isLikelyVerb(stem)) return { ok:false, text:t, why:"notverb_ing" };
   return { ok:true, text:t };
 }
 function writeFeedback(frame, r) {
   const v = frame.verb;
   if (frame.type === "TO") {
     if (r.why === "ing" || r.why === "toing") return `${v} のあとは「to + 動詞のもとの形」。ing はつけないよ。\n例: ${frame.pre} ${frame.example}.`;
+    if (r.why === "notbase") return `「to」のあとには動詞の原形を入れてね。過去形じゃなくて、もとの形だよ。\n例: to play, to study, to eat`;
+    if (r.why === "notverb") return `「to」のあとには動詞（動きをあらわす言葉）を入れてね。\n例: to play, to study, to eat`;
     if (r.why === "noverb") return `to のあとに動詞を書こう。\n例: ${frame.pre} ${frame.example}.`;
     return `${v} のあとは to から始めよう。\n例: ${frame.pre} ${frame.example}.`;
   }
   if (r.why === "to") return `${v} のあとに to は使えないよ。動詞に ing をつけよう。\n例: ${frame.pre} ${frame.example}.`;
+  if (r.why === "notverb_ing") return `動詞に ing をつけよう。名詞や形容詞じゃなくて、動きをあらわす言葉だよ。\n例: playing, studying, reading`;
   return `${v} のあとは「動詞 + ing」。さいしょの単語を 〜ing の形にしよう。\n例: ${frame.pre} ${frame.example}.`;
 }
 
