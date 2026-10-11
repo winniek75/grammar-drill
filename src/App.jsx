@@ -611,9 +611,21 @@ const CSS = `
   .choice-btn:active:not(:disabled) { transform: scale(.96); }
   .choice-btn:disabled { cursor: default; }
 
-  .scroll { overflow-y: auto; }
+  .scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .scroll::-webkit-scrollbar { width: 3px; }
   .scroll::-webkit-scrollbar-thumb { background: #1e2535; border-radius: 2px; }
+
+  /* ── Mobile optimization (<=640px) ── */
+  @media (max-width: 640px) {
+    html { -webkit-text-size-adjust: 100%; }
+    body { font-size: 14px; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+    button, .btn { min-height: 44px; }
+    input, textarea, select { font-size: 16px !important; }
+    .choice-btn { padding: 14px 10px; min-height: 48px; font-size: 14px; }
+    textarea { font-size: 16px !important; min-height: 60px; }
+    .adaptive-hint { font-size: 13px; margin: 6px 10px 0; }
+    .combo-milestone-text { font-size: clamp(28px, 8vw, 52px); }
+  }
 `;
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
@@ -918,7 +930,7 @@ export default function App() {
   const opts = optsRef.current.length === 2 ? optsRef.current : [];
 
   return (
-    <div style={{ minHeight:"100vh", background:"#060810", fontFamily:"'Sora','Noto Sans JP',sans-serif", position:"relative", overflowX:"hidden" }}>
+    <div style={{ minHeight:"100dvh", background:"#060810", fontFamily:"'Sora','Noto Sans JP',sans-serif", position:"relative", overflowX:"hidden" }}>
       <style>{CSS}</style>
       <BgGrid />
 
@@ -970,6 +982,7 @@ function BackBtn({ onBack }) {
       background:"rgba(6,8,16,.9)", backdropFilter:"blur(8px)",
       color:"#555", fontSize:13, fontFamily:"Space Mono",
       display:"flex", alignItems:"center", gap:6, cursor:"pointer",
+      minHeight:44,
     }}>
       ← 戻る
     </button>
@@ -1029,7 +1042,7 @@ function HomeScreen({ onMode, records, bestCombos }) {
   const bothN = ALL_Q.filter(q => q.type.startsWith("BOTH")).length;
 
   return (
-    <div className="scroll" style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px" }}>
+    <div className="scroll" style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(20px,5vw,40px) clamp(12px,3vw,20px)" }}>
       <div style={{ textAlign:"center", marginBottom:28 }}>
         <div style={{ width:64, height:64, borderRadius:18, background:"linear-gradient(135deg,#00d4aa,#0ea5e9)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, fontWeight:900, color:"#060810", margin:"0 auto 16px", boxShadow:"0 0 36px rgba(0,212,170,.3)" }}>動</div>
         <div style={{ fontSize:11, fontFamily:"Space Mono", color:"#00d4aa", letterSpacing:4, marginBottom:10 }}>VERBFORM BATTLE</div>
@@ -1108,7 +1121,7 @@ function RulesScreen({ mode, countSel, onCount, onStart, onBack }) {
   const countOpts = [...new Set([5, 10, mode.count, curCount])].filter(n => n <= mode.max).sort((a, b) => a - b);
 
   return (
-    <div style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"60px 20px 40px" }}>
+    <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(30px,6vw,60px) clamp(12px,3vw,20px) clamp(20px,4vw,40px)" }}>
       <BackBtn onBack={onBack} />
       <div className="pop" style={{ textAlign:"center", width:"100%", maxWidth:460 }}>
         <div style={{ fontSize:44, marginBottom:10 }}>{mode.icon}</div>
@@ -1176,7 +1189,7 @@ function RulesScreen({ mode, countSel, onCount, onStart, onBack }) {
           )}
         </div>
 
-        <button className="btn" onClick={onStart} style={{ padding:"14px 52px", borderRadius:12, border:"none", background:`linear-gradient(135deg,${mode.color},${mode.color}bb)`, color:"#060810", fontSize:16, fontWeight:800, letterSpacing:2, cursor:"pointer" }}>
+        <button className="btn" onClick={onStart} style={{ padding:"14px 52px", borderRadius:12, border:"none", background:`linear-gradient(135deg,${mode.color},${mode.color}bb)`, color:"#060810", fontSize:16, fontWeight:800, letterSpacing:2, cursor:"pointer", minHeight:48, width:"100%", maxWidth:320 }}>
           START ▶
         </button>
       </div>
@@ -1205,7 +1218,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
   const timerPct    = hasTimer ? (timeLeft / cfg.time) * 100 : 100;
 
   return (
-    <div style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", paddingBottom:24 }}>
+    <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", paddingBottom:24, overflowX:"hidden" }}>
       <BackBtn onBack={onBack} />
 
       {/* Particles */}
@@ -1216,7 +1229,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
       </div>
 
       {/* Header */}
-      <div style={{ padding:"14px 60px 6px 60px", display:"flex", alignItems:"center", gap:10 }}>
+      <div style={{ padding:"14px clamp(16px,6vw,60px) 6px clamp(16px,6vw,60px)", display:"flex", alignItems:"center", gap:10 }}>
         <div style={{ flex:1, height:4, background:"#0d111a", borderRadius:2, overflow:"hidden" }}>
           <div style={{ height:"100%", width:`${progPct}%`, background:"linear-gradient(90deg,#00d4aa,#0ea5e9)", borderRadius:2, transition:"width .4s ease" }} />
         </div>
@@ -1345,6 +1358,7 @@ function PlayScreen({ q, qIdx, total, opts, answered, score, combo, timeLeft, ha
                 color:"#fff", fontSize:14, fontWeight:800,
                 letterSpacing:1, cursor:"pointer",
                 display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                minHeight:48,
               }}
             >
               次の問題へ
@@ -1368,7 +1382,7 @@ function ResultScreen({ questions, wrongIds, timeoutIds = [], writeResults = [],
   const wrongVerbs = [...new Set(wrongIds.map(id => ALL_Q.find(q => q.id === id)?.verb).filter(Boolean))];
 
   return (
-    <div className="scroll" style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 20px" }}>
+    <div className="scroll" style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(20px,5vw,40px) clamp(12px,3vw,20px)" }}>
       <div className="pop" style={{ textAlign:"center", width:"100%", maxWidth:440 }}>
         <div style={{ fontSize:60, marginBottom:6, filter:`drop-shadow(0 0 18px ${RC})` }}>{RE}</div>
         <div style={{ fontSize:48, fontWeight:900, color:RC, fontFamily:"Space Mono", lineHeight:1 }}>RANK {rank}</div>
@@ -1419,15 +1433,15 @@ function ResultScreen({ questions, wrongIds, timeoutIds = [], writeResults = [],
         )}
 
         <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-          <button className="btn" onClick={onRestart} style={{ padding:"13px", borderRadius:12, border:"none", background:`linear-gradient(135deg,${cfg?.color},${cfg?.color}bb)`, color:"#060810", fontSize:15, fontWeight:800, letterSpacing:2, cursor:"pointer" }}>
+          <button className="btn" onClick={onRestart} style={{ padding:"13px", borderRadius:12, border:"none", background:`linear-gradient(135deg,${cfg?.color},${cfg?.color}bb)`, color:"#060810", fontSize:15, fontWeight:800, letterSpacing:2, cursor:"pointer", minHeight:48 }}>
             もう一度
           </button>
           {onRetry && (
-            <button className="btn" onClick={onRetry} style={{ padding:"13px", borderRadius:12, border:"2px solid #ef444440", background:"#ef44440a", color:"#f87171", fontSize:14, fontWeight:700, cursor:"pointer" }}>
+            <button className="btn" onClick={onRetry} style={{ padding:"13px", borderRadius:12, border:"2px solid #ef444440", background:"#ef44440a", color:"#f87171", fontSize:14, fontWeight:700, cursor:"pointer", minHeight:48 }}>
               ミスのみ再挑戦 ({wrongIds.length}問)
             </button>
           )}
-          <button className="btn" onClick={onHome} style={{ padding:"13px", borderRadius:12, border:"1px solid #1e2535", background:"transparent", color:"#444", fontSize:14, cursor:"pointer" }}>
+          <button className="btn" onClick={onHome} style={{ padding:"13px", borderRadius:12, border:"1px solid #1e2535", background:"transparent", color:"#444", fontSize:14, cursor:"pointer", minHeight:48 }}>
             ← ホームへ戻る
           </button>
         </div>
@@ -1468,7 +1482,7 @@ function WriteScreen({ frames, onDone }) {
   };
 
   return (
-    <div style={{ position:"relative", zIndex:1, minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"40px 16px" }}>
+    <div style={{ position:"relative", zIndex:1, minHeight:"100dvh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"clamp(20px,5vw,40px) clamp(12px,3vw,16px)" }}>
       <div className="pop" key={idx} style={{ width:"100%", maxWidth:460 }}>
         <div style={{ textAlign:"center", marginBottom:16 }}>
           <div style={{ fontSize:11, color:"#a78bfa", fontFamily:"Space Mono", letterSpacing:3, marginBottom:6 }}>✍️ さいごのチャレンジ {idx + 1}/{frames.length}</div>
@@ -1502,12 +1516,12 @@ function WriteScreen({ frames, onDone }) {
 
           {fb?.ok ? (
             <button className="btn" onClick={() => next({ frame, ok:true, text:fb.text, firstWrong:firstWrongRef.current })}
-              style={{ marginTop:14, width:"100%", padding:"12px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#00d4aa,#0ea5e9)", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+              style={{ marginTop:14, width:"100%", padding:"12px", borderRadius:10, border:"none", background:"linear-gradient(135deg,#00d4aa,#0ea5e9)", color:"#fff", fontSize:14, fontWeight:800, cursor:"pointer", minHeight:48 }}>
               {idx + 1 >= frames.length ? "結果を見る" : "次へ"}
             </button>
           ) : (
             <button className="btn" onClick={check}
-              style={{ marginTop:14, width:"100%", padding:"12px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C},${C}bb)`, color:"#060810", fontSize:14, fontWeight:800, cursor:"pointer" }}>
+              style={{ marginTop:14, width:"100%", padding:"12px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C},${C}bb)`, color:"#060810", fontSize:14, fontWeight:800, cursor:"pointer", minHeight:48 }}>
               チェックする
             </button>
           )}
