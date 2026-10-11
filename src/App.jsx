@@ -96,7 +96,7 @@ function appendWrongLog(wrongIds, questions) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  DATA  — 94問
+//  DATA  — 124問
 // ═══════════════════════════════════════════════════════════
 // type: "TO" | "ING" | "BOTH_TO" | "BOTH_ING"
 const ALL_Q = [
@@ -311,6 +311,52 @@ const ALL_Q = [
     sentence:"I regret ___ that I cannot attend.", blank:"to say",
     ja:"残念ながら出席できないことをお伝えします。",
     ex:"【regret + to + 動詞】= 「残念ながら〜します」\n「申し上げにくいのですが...」というていねいな表現。\nこれから伝える → to だよ。\n✅ I regret to say ..." },
+
+  // ═══════════════════════════════════════════════════════════
+  //  不定詞の発展  — 30問
+  // ═══════════════════════════════════════════════════════════
+
+  // ── It is ~ (for 人) to ... ──
+  { id:95,  verb:"It is...to", type:"TO",  sentence:"It is important ___ every day.",            blank:"to study",     ja:"毎日勉強することは大切だ。",                      ex:"【It is 形容詞 to + 動詞】= 「〜することは…だ」\nIt は仮の主語で、本当の主語は to study every day。\n「勉強すること＝大切」→ to を使うよ！\n✅ It is important to study ..." },
+  { id:96,  verb:"It is...to", type:"TO",  sentence:"It is easy for me ___ this question.",      blank:"to answer",    ja:"私にとってこの質問に答えるのは簡単だ。",            ex:"【It is 形容詞 for 人 to + 動詞】= 「（人にとって）〜するのは…だ」\nfor me は「私にとって」の意味。\nto + 動詞で「〜すること」を表すよ。\n✅ It is easy for me to answer ..." },
+  { id:97,  verb:"It is...to", type:"TO",  sentence:"It is fun ___ soccer with friends.",        blank:"to play",      ja:"友達とサッカーをするのは楽しい。",                  ex:"【It is 形容詞 to + 動詞】= 「〜するのは…だ」\n「サッカーすること＝楽しい」\nIt が仮主語で to play 以下が本当の主語だよ。\n✅ It is fun to play ..." },
+  { id:98,  verb:"It is...to", type:"TO",  sentence:"It is difficult for him ___ up early.",     blank:"to get",       ja:"彼にとって早起きするのは難しい。",                  ex:"【It is 形容詞 for 人 to + 動詞】= 「（人にとって）〜するのは…だ」\nfor him は「彼にとって」。\n「早起きすること＝難しい」→ to を使うよ！\n✅ It is difficult for him to get ..." },
+  { id:99,  verb:"It is...to", type:"TO",  sentence:"It is dangerous ___ here.",                 blank:"to swim",      ja:"ここで泳ぐのは危険だ。",                            ex:"【It is 形容詞 to + 動詞】= 「〜するのは…だ」\n「泳ぐこと＝危険」\n仮主語 It を使って、to + 動詞 で本当の主語を後ろに置くよ。\n✅ It is dangerous to swim ..." },
+
+  // ── want 人 to ... ──
+  { id:100, verb:"want 人 to", type:"TO",  sentence:"I want you ___ to my party.",               blank:"to come",      ja:"あなたに私のパーティーに来てほしい。",              ex:"【want + 人 + to + 動詞】= 「人に〜してほしい」\n「あなたに来てほしい」→ 人のあとに to + 動詞！\nwant + 人 + to はセットで覚えよう。\n✅ I want you to come ..." },
+  { id:101, verb:"want 人 to", type:"TO",  sentence:"She wants him ___ harder.",                 blank:"to study",     ja:"彼女は彼にもっと勉強してほしい。",                  ex:"【want + 人 + to + 動詞】= 「人に〜してほしい」\n「彼に勉強してほしい」→ 人のあとに to + 動詞！\n✅ She wants him to study ..." },
+  { id:102, verb:"want 人 to", type:"TO",  sentence:"My mother wants me ___ vegetables.",        blank:"to eat",       ja:"母は私に野菜を食べてほしい。",                      ex:"【want + 人 + to + 動詞】= 「人に〜してほしい」\n「私に食べてほしい」→ me のあとに to + 動詞！\n✅ My mother wants me to eat ..." },
+  { id:103, verb:"want 人 to", type:"TO",  sentence:"Do you want me ___ you?",                   blank:"to help",      ja:"私に手伝ってほしいですか？",                        ex:"【want + 人 + to + 動詞】= 「人に〜してほしい」\n「私に手伝ってほしい？」→ me + to + 動詞！\n✅ Do you want me to help ...?" },
+  { id:104, verb:"want 人 to", type:"TO",  sentence:"The coach wants us ___ every day.",          blank:"to practice",  ja:"コーチは私たちに毎日練習してほしい。",              ex:"【want + 人 + to + 動詞】= 「人に〜してほしい」\n「私たちに練習してほしい」→ us + to + 動詞！\n✅ The coach wants us to practice ..." },
+
+  // ── tell/ask 人 to ... ──
+  { id:105, verb:"tell 人 to",  type:"TO",  sentence:"She told me ___ for her.",                  blank:"to wait",      ja:"彼女は私に待つように言った。",                      ex:"【tell + 人 + to + 動詞】= 「人に〜するように言う」\n「待ってて」と言われた → told + 人 + to + 動詞！\ntell のあとは人 + to が来るよ。\n✅ She told me to wait ..." },
+  { id:106, verb:"ask 人 to",  type:"TO",  sentence:"He asked me ___ the door.",                 blank:"to open",      ja:"彼は私にドアを開けるように頼んだ。",                ex:"【ask + 人 + to + 動詞】= 「人に〜するように頼む」\n「開けて」と頼まれた → asked + 人 + to + 動詞！\n✅ He asked me to open ..." },
+  { id:107, verb:"tell 人 to",  type:"TO",  sentence:"The teacher told us ___ quiet.",            blank:"to be",        ja:"先生は私たちに静かにするように言った。",            ex:"【tell + 人 + to + 動詞】= 「人に〜するように言う」\n「静かにして」と言われた → told + 人 + to + 動詞！\n✅ The teacher told us to be ..." },
+  { id:108, verb:"ask 人 to",  type:"TO",  sentence:"She asked him ___ her a favor.",             blank:"to do",        ja:"彼女は彼にお願いをするよう頼んだ。",                ex:"【ask + 人 + to + 動詞】= 「人に〜するように頼む」\nask は「お願いする」→ ask + 人 + to + 動詞！\n✅ She asked him to do ..." },
+  { id:109, verb:"tell 人 to",  type:"TO",  sentence:"My father told me ___ my best.",            blank:"to do",        ja:"父は私にベストを尽くすように言った。",              ex:"【tell + 人 + to + 動詞】= 「人に〜するように言う」\n「頑張れ」と言われた → told + 人 + to + 動詞！\n✅ My father told me to do ..." },
+
+  // ── how to ... ──
+  { id:110, verb:"how to",     type:"TO",  sentence:"I don't know how ___ this computer.",       blank:"to use",       ja:"このコンピューターの使い方が分からない。",          ex:"【how to + 動詞】= 「〜の仕方・やり方」\n「使い方が分からない」→ how to use!\nhow to は「どうやって〜するか」という意味だよ。\n✅ I don't know how to use ..." },
+  { id:111, verb:"how to",     type:"TO",  sentence:"Can you teach me how ___ cookies?",         blank:"to make",      ja:"クッキーの作り方を教えてくれますか？",              ex:"【how to + 動詞】= 「〜の仕方」\n「作り方を教えて」→ how to make!\n✅ Can you teach me how to make ...?" },
+  { id:112, verb:"what to",    type:"TO",  sentence:"I don't know what ___ for dinner.",          blank:"to cook",      ja:"夕食に何を作ったらいいか分からない。",              ex:"【what to + 動詞】= 「何を〜すべきか」\n疑問詞 + to + 動詞 で「何を〜したらいいか」を表すよ。\n✅ I don't know what to cook ..." },
+  { id:113, verb:"where to",   type:"TO",  sentence:"She doesn't know where ___ tomorrow.",      blank:"to go",        ja:"彼女は明日どこに行くべきか分からない。",            ex:"【where to + 動詞】= 「どこに〜すべきか」\n疑問詞 + to + 動詞 で「どこで〜したらいいか」を表すよ。\n✅ She doesn't know where to go ..." },
+  { id:114, verb:"when to",    type:"TO",  sentence:"He didn't know when ___ the meeting.",      blank:"to start",     ja:"彼は会議をいつ始めたらいいか分からなかった。",      ex:"【when to + 動詞】= 「いつ〜すべきか」\n疑問詞 + to + 動詞 で「いつ〜したらいいか」を表すよ。\n✅ He didn't know when to start ..." },
+
+  // ── too ~ to ... ──
+  { id:115, verb:"too...to",   type:"TO",  sentence:"He is too young ___ a car.",                blank:"to drive",     ja:"彼は車を運転するには若すぎる。",                    ex:"【too + 形容詞 + to + 動詞】= 「〜するには…すぎる」\n「若すぎて運転できない」→ too young to drive!\ntoo は「〜すぎる」→ to + 動詞 で「〜するには」\n✅ He is too young to drive ..." },
+  { id:116, verb:"too...to",   type:"TO",  sentence:"This box is too heavy ___ alone.",          blank:"to carry",     ja:"この箱は一人で運ぶには重すぎる。",                  ex:"【too + 形容詞 + to + 動詞】= 「〜するには…すぎる」\n「重すぎて運べない」→ too heavy to carry!\n✅ This box is too heavy to carry ..." },
+  { id:117, verb:"too...to",   type:"TO",  sentence:"She was too tired ___ any more.",           blank:"to walk",      ja:"彼女は疲れすぎてこれ以上歩けなかった。",            ex:"【too + 形容詞 + to + 動詞】= 「〜するには…すぎる」\n「疲れすぎて歩けない」→ too tired to walk!\n✅ She was too tired to walk ..." },
+  { id:118, verb:"too...to",   type:"TO",  sentence:"The coffee is too hot ___.",                blank:"to drink",     ja:"このコーヒーは飲むには熱すぎる。",                  ex:"【too + 形容詞 + to + 動詞】= 「〜するには…すぎる」\n「熱すぎて飲めない」→ too hot to drink!\n✅ The coffee is too hot to drink ..." },
+  { id:119, verb:"too...to",   type:"TO",  sentence:"The question was too difficult ___.",       blank:"to answer",    ja:"その質問は答えるには難しすぎた。",                  ex:"【too + 形容詞 + to + 動詞】= 「〜するには…すぎる」\n「難しすぎて答えられない」→ too difficult to answer!\n✅ The question was too difficult to answer ..." },
+
+  // ── ~ enough to ... ──
+  { id:120, verb:"enough to",  type:"TO",  sentence:"She is old enough ___ for herself.",        blank:"to vote",      ja:"彼女は自分で投票できる年齢だ。",                    ex:"【形容詞 + enough + to + 動詞】= 「〜するのに十分…だ」\n「十分な年齢なので投票できる」→ old enough to vote!\nenough は「十分に」→ to + 動詞 で「〜するのに」\n✅ She is old enough to vote ..." },
+  { id:121, verb:"enough to",  type:"TO",  sentence:"He is tall enough ___ the top shelf.",      blank:"to reach",     ja:"彼は一番上の棚に届くほど背が高い。",                ex:"【形容詞 + enough + to + 動詞】= 「〜するのに十分…だ」\n「十分背が高いから届く」→ tall enough to reach!\n✅ He is tall enough to reach ..." },
+  { id:122, verb:"enough to",  type:"TO",  sentence:"She is smart enough ___ the puzzle.",       blank:"to solve",     ja:"彼女はそのパズルを解けるほど賢い。",                ex:"【形容詞 + enough + to + 動詞】= 「〜するのに十分…だ」\n「十分賢いから解ける」→ smart enough to solve!\n✅ She is smart enough to solve ..." },
+  { id:123, verb:"enough to",  type:"TO",  sentence:"The water is warm enough ___.",             blank:"to swim",      ja:"水は泳ぐのに十分温かい。",                          ex:"【形容詞 + enough + to + 動詞】= 「〜するのに十分…だ」\n「十分温かいから泳げる」→ warm enough to swim!\n✅ The water is warm enough to swim ..." },
+  { id:124, verb:"enough to",  type:"TO",  sentence:"He ran fast enough ___ the bus.",           blank:"to catch",     ja:"彼はバスに間に合うほど速く走った。",                ex:"【副詞 + enough + to + 動詞】= 「〜するのに十分…に」\n「十分速く走ったから間に合った」→ fast enough to catch!\n✅ He ran fast enough to catch ..." },
 ];
 
 function shuffle(arr) {
